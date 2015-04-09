@@ -19,7 +19,7 @@ function email_node_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['admin/config/structure/email_node'] = array(
+  $items['admin/config/email_node'] = array(
     'title' => 'Email Node Configuration',
     'description' => 'Configure defaults for Email Node.',
     'page callback' => 'drupal_get_form',
