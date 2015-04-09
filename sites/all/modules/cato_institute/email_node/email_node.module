@@ -109,6 +109,12 @@ function email_node_page($node) {
  * @return mixed
  */
 function email_node_form($form, &$form_state, $node) {
+  if (isset($form_state['values']['email_node_key'])) {
+    $key = $form_state['values']['email_node_key'];
+  }
+  else {
+    $key = 'draft';
+  }
   $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
     array('node' => $node));
   $before = variable_get('email_node_default_before', array('value' => '',
@@ -123,10 +129,14 @@ function email_node_form($form, &$form_state, $node) {
     '#type' => 'radios',
     '#title' => t('Type of email'),
     '#description' => t('Draft emails will have "DRAFT: " appended before the subject.'),
-    '#default_value' => 'draft',
+    '#default_value' => $key,
     '#options' => array(
       'draft' => t('Draft'),
       'final' => t('Final')
+    ),
+    '#ajax' => array(
+      'callback' => 'email_node_type_ajax_callback',
+      'wrapper' => 'email-node-to-wrapper',
     ),
   );
   $form['email_node_to'] = array(
@@ -137,7 +147,9 @@ function email_node_form($form, &$form_state, $node) {
     '#attributes' => array(
       '#placeholder' => 'email@example.com',
     ),
-    '#default_value' => variable_get('email_node_draft_default_to', ''),
+    '#default_value' => variable_get('email_node_' . $key . '_default_to', ''),
+    '#prefix' => '<div id="email-node-to-wrapper">',
+    '#suffix' => '</div>',
   );
   $form['email_node_subject'] = array(
     '#type' => 'textfield',
@@ -161,6 +173,17 @@ function email_node_form($form, &$form_state, $node) {
     '#rows' => 10,
   );
   return $form;
+}
+
+/**
+ * Ajax callback for email type selector in tab form
+ *
+ * @param $form
+ *
+ * @return mixed
+ */
+function email_node_type_ajax_callback($form) {
+  return $form['email_node_to'];
 }
 
 /**
