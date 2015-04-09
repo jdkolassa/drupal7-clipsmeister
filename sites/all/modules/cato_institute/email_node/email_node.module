@@ -44,31 +44,41 @@ function email_node_config_form() {
   $form['email_node_config_description'] = array(
     '#markup' => '<p>Specify defaults to use for the email node tab.</p>',
   );
-  $form['email_node_to'] = array(
+  $form['email_node_draft_default_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('To'),
-    '#description' => t('The content will be emailed to this address.'),
+    '#description' => t('Draft emails will be sent to this address.'),
     '#required' => TRUE,
     '#attributes' => array(
       '#placeholder' => 'email@example.com',
     ),
-    '#default_value' => variable_get('email_node_default_to', ''),
+    '#default_value' => variable_get('email_node_draft_default_to', ''),
   );
-  $form['email_node_subject'] = array(
+  $form['email_node_final_default_to'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('To'),
+    '#description' => t('Final emails will be sent to this address.'),
+    '#required' => TRUE,
+    '#attributes' => array(
+      '#placeholder' => 'email@example.com',
+    ),
+    '#default_value' => variable_get('email_node_final_default_to', ''),
+  );
+  $form['email_node_default_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
     '#description' => t('This will be the subject of the email'),
     '#required' => TRUE,
-    '#default_value' => variable_get('email_node_default_to', '[node:title]'),
+    '#default_value' => variable_get('email_node_default_subject', '[node:title]'),
   );
-  $form['email_node_before'] = array(
+  $form['email_node_default_before'] = array(
     '#type' => 'text_format',
     '#title' => t('Text to place above content'),
     '#default_value' => $before['value'],
     '#format' => $before['format'],
     '#rows' => 10,
   );
-  $form['email_node_after'] = array(
+  $form['email_node_default_after'] = array(
     '#type' => 'text_format',
     '#title' => t('Text to place after content'),
     '#default_value' => $after['value'],
@@ -99,7 +109,7 @@ function email_node_page($node) {
  * @return mixed
  */
 function email_node_form($form, &$form_state, $node) {
-  $subject = token_replace(variable_get('email_node_default_to', '[node:title]'),
+  $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
     array('node' => $node));
   $before = variable_get('email_node_default_before', array('value' => '',
     'format' => NULL));
@@ -112,6 +122,7 @@ function email_node_form($form, &$form_state, $node) {
   $form['email_node_key'] = array(
     '#type' => 'radios',
     '#title' => t('Type of email'),
+    '#description' => t('Draft emails will have "DRAFT: " appended before the subject.'),
     '#default_value' => 'draft',
     '#options' => array(
       'draft' => t('Draft'),
@@ -126,7 +137,7 @@ function email_node_form($form, &$form_state, $node) {
     '#attributes' => array(
       '#placeholder' => 'email@example.com',
     ),
-    '#default_value' => variable_get('email_node_default_to', ''),
+    '#default_value' => variable_get('email_node_draft_default_to', ''),
   );
   $form['email_node_subject'] = array(
     '#type' => 'textfield',
