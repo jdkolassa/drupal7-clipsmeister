@@ -19,7 +19,63 @@ function email_node_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['admin/config/structure/email_node'] = array(
+    'title' => 'Email Node Configuration',
+    'description' => 'Configure defaults for Email Node.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('email_node_config_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
   return $items;
+}
+
+/**
+ * Builds the form to configure defaults
+ *
+ * @return array
+ */
+function email_node_config_form() {
+  $form = array();
+  $before = variable_get('email_node_default_before', array('value' => '',
+    'format' => NULL));
+  $after = variable_get('email_node_default_after', array('value' => '',
+    'format' => NULL));
+  $form['email_node_config_description'] = array(
+    '#markup' => '<p>Specify defaults to use for the email node tab.</p>',
+  );
+  $form['email_node_to'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('To'),
+    '#description' => t('The content will be emailed to this address.'),
+    '#required' => TRUE,
+    '#attributes' => array(
+      '#placeholder' => 'email@example.com',
+    ),
+    '#default_value' => variable_get('email_node_default_to', ''),
+  );
+  $form['email_node_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#description' => t('This will be the subject of the email'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('email_node_default_to', '[node:title]'),
+  );
+  $form['email_node_before'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Text to place above content'),
+    '#default_value' => $before['value'],
+    '#format' => $before['format'],
+    '#rows' => 10,
+  );
+  $form['email_node_after'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Text to place after content'),
+    '#default_value' => $after['value'],
+    '#format' => $after['format'],
+    '#rows' => 10,
+  );
+  return system_settings_form($form);
 }
 
 /**
