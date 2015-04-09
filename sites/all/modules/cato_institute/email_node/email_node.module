@@ -144,9 +144,6 @@ function email_node_form($form, &$form_state, $node) {
     '#title' => t('To'),
     '#description' => t('The content will be emailed to this address.'),
     '#required' => TRUE,
-    '#attributes' => array(
-      '#placeholder' => 'email@example.com',
-    ),
     '#default_value' => variable_get('email_node_' . $key . '_default_to', ''),
     '#prefix' => '<div id="email-node-to-wrapper">',
     '#suffix' => '</div>',
