@@ -4,3 +4,85 @@
  * @file
  * Email the contents of a node
  */
+
+/**
+ * Implements hook_menu().
+ */
+function email_node_menu() {
+  $items['node/%node/email'] = array(
+    'title' => 'Email',
+    'page callback' => 'email_node_page',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  return $items;
+}
+
+/**
+ * Callback for email node page
+ *
+ * @param $node
+ *
+ * @return array|mixed
+ */
+function email_node_page($node) {
+  return drupal_get_form('email_node_form', $node);
+}
+
+/**
+ * Builds the form to enter email information
+ *
+ * @param $form
+ * @param $form_state
+ * @param $node
+ *
+ * @return mixed
+ */
+function email_node_form($form, &$form_state, $node) {
+  $subject = token_replace(variable_get('email_node_default_to', '[node:title]'),
+    array('node' => $node));
+  $before = variable_get('email_node_default_before', array('value' => '',
+    'format' => NULL));
+  $after = variable_get('email_node_default_after', array('value' => '',
+    'format' => NULL));
+  $form['email_node_nid'] = array(
+    '#type' => 'hidden',
+    '#value' => $node->nid,
+  );
+  $form['email_node_to'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('To'),
+    '#description' => t('The content will be emailed to this address.'),
+    '#required' => TRUE,
+    '#attributes' => array(
+      '#placeholder' => 'email@example.com',
+    ),
+    '#default_value' => variable_get('email_node_default_to', ''),
+  );
+  $form['email_node_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#description' => t('This will be the subject of the email'),
+    '#required' => TRUE,
+    '#default_value' => $subject,
+  );
+  $form['email_node_before'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Text to place above content'),
+    '#default_value' => $before['value'],
+    '#format' => $before['format'],
+    '#rows' => 10,
+  );
+  $form['email_node_after'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Text to place after content'),
+    '#default_value' => $after['value'],
+    '#format' => $after['format'],
+    '#rows' => 10,
+  );
+  return $form;
+}

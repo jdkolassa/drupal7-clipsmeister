@@ -3,5 +3,6 @@ name = Email Node
 description = "Email the contents of a node"
 files[] = email_node.module
 dependencies[] = node
+dependencies[] = elements
 package = Mail
 core = 7.x
