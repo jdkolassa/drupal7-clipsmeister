@@ -111,7 +111,6 @@ function email_node_form($form, &$form_state, $node) {
   else {
     $key = 'draft';
   }
-  dpm($key);
   $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
     array('node' => $node));
   $before = variable_get('email_node_default_before', array('value' => '',
