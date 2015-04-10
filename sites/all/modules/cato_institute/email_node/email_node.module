@@ -130,15 +130,15 @@ function email_node_form($form, &$form_state, $node) {
         'node' => $node,
       );
       $key = 'draft';
-      $to = token_replace(variable_get('email_node_draft_default_to', ''),
+      $to = token_replace(variable_get('email_node_' . $node->type . '_default_draft_to', ''),
         $token_entities);
-      $subject = token_replace(variable_get('email_node_' . $type->type . '_default_subject', '[node:title]'),
+      $subject = token_replace(variable_get('email_node_' . $node->type . '_default_subject', '[node:title]'),
         $token_entities);
-      $before = token_replace(variable_get('email_node_' . $type->type . '_default_before', array(
+      $before = token_replace(variable_get('email_node_' . $node->type . '_default_before', array(
         'value' => '',
         'format' => NULL
       )), $token_entities);
-      $after = token_replace(variable_get('email_node_' . $type->type . '_default_after', array(
+      $after = token_replace(variable_get('email_node_' . $node->type . '_default_after', array(
         'value' => '',
         'format' => NULL
       )), $token_entities);
@@ -215,7 +215,7 @@ function email_node_form($form, &$form_state, $node) {
  */
 function email_node_type_ajax_callback($form, &$form_state) {
   $key = $form_state['input']['email_node_key'];
-  $form['email_node_to']['#value']= variable_get('email_node_' . $key . '_default_to', '');
+  $form['email_node_to']['#value']= variable_get('email_node_' . $type->type . '_default_' . $key . '_to', '');
   return $form['email_node_to'];
 }
 
