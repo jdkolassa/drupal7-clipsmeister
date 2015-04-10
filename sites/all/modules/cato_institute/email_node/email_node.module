@@ -79,6 +79,7 @@ function email_node_config_form($form, &$form_state, $type) {
   $form['email_node_' . $type->type . '_default_before'] = array(
     '#type' => 'text_format',
     '#title' => t('Text to place above content'),
+    '#description' => t('If you want CSS, place it at the start between <style></style> tags.'),
     '#default_value' => $before['value'],
     '#format' => $before['format'],
     '#rows' => 10,
@@ -181,6 +182,7 @@ function email_node_form($form, &$form_state, $node) {
     $form['email_node_before'] = array(
       '#type' => 'text_format',
       '#title' => t('Text to place above content'),
+      '#description' => t('If you want CSS, place it at the start between <style></style> tags.'),
       '#default_value' => $before['value'],
       '#format' => $before['format'],
       '#rows' => 10,
