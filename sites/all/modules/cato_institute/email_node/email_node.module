@@ -57,7 +57,7 @@ function email_node_config_form() {
   }
   $form['email_node_draft_default_to'] = array(
     '#type' => 'emailfield',
-    '#title' => t('To'),
+    '#title' => t('Draft version recipient email'),
     '#description' => t('Draft emails will be sent to this address.'),
     '#required' => FALSE,
     '#placeholder' => 'email@example.com',
@@ -65,7 +65,7 @@ function email_node_config_form() {
   );
   $form['email_node_final_default_to'] = array(
     '#type' => 'emailfield',
-    '#title' => t('To'),
+    '#title' => t('Final version recipient email'),
     '#description' => t('Final emails will be sent to this address.'),
     '#required' => FALSE,
     '#placeholder' => 'email@example.com',
