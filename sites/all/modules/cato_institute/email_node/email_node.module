@@ -19,13 +19,12 @@ function email_node_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['admin/config/email_node'] = array(
-    'title' => 'Email Node Configuration',
+  $items['admin/structure/types/manage/%node_type/email'] = array(
+    'title' => 'Email',
     'description' => 'Configure defaults for Email Node.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('email_node_config_form'),
-    'access arguments' => array('administer site configuration'),
-    'type' => MENU_NORMAL_ITEM,
+    'page arguments' => array('email_node_config_form', 4),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer content types'),
   );
   return $items;
 }
@@ -35,11 +34,10 @@ function email_node_menu() {
  *
  * @return array
  */
-function email_node_config_form() {
-  $form = array();
-  $before = variable_get('email_node_default_before', array('value' => '',
+function email_node_config_form($form, &$form_state, $type) {
+  $before = variable_get('email_node_' . $type->type . '_default_before', array('value' => '',
     'format' => NULL));
-  $after = variable_get('email_node_default_after', array('value' => '',
+  $after = variable_get('email_node_' . $type->type . '_default_after', array('value' => '',
     'format' => NULL));
   $form['email_node_config_description'] = array(
     '#markup' => '<p>Specify defaults to use for the email node tab.</p><p>All fields work with tokens.</p>',
@@ -61,7 +59,7 @@ function email_node_config_form() {
     '#description' => t('Draft emails will be sent to this address.'),
     '#required' => FALSE,
     '#placeholder' => 'email@example.com',
-    '#default_value' => variable_get('email_node_draft_default_to', ''),
+    '#default_value' => variable_get('email_node_' . $type->type . '_default_draft_to', ''),
   );
   $form['email_node_final_default_to'] = array(
     '#type' => 'emailfield',
@@ -69,14 +67,14 @@ function email_node_config_form() {
     '#description' => t('Final emails will be sent to this address.'),
     '#required' => FALSE,
     '#placeholder' => 'email@example.com',
-    '#default_value' => variable_get('email_node_final_default_to', ''),
+    '#default_value' => variable_get('email_node_' . $type->type . '_default_final_to', ''),
   );
   $form['email_node_default_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
     '#description' => t('This will be the subject of the email'),
     '#required' => TRUE,
-    '#default_value' => variable_get('email_node_default_subject', '[node:title]'),
+    '#default_value' => variable_get('email_node_' . $type->type . '_default_subject', '[node:title]'),
   );
   $form['email_node_default_before'] = array(
     '#type' => 'text_format',
@@ -134,13 +132,13 @@ function email_node_form($form, &$form_state, $node) {
       $key = 'draft';
       $to = token_replace(variable_get('email_node_draft_default_to', ''),
         $token_entities);
-      $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
+      $subject = token_replace(variable_get('email_node_' . $type->type . '_default_subject', '[node:title]'),
         $token_entities);
-      $before = token_replace(variable_get('email_node_default_before', array(
+      $before = token_replace(variable_get('email_node_' . $type->type . '_default_before', array(
         'value' => '',
         'format' => NULL
       )), $token_entities);
-      $after = token_replace(variable_get('email_node_default_after', array(
+      $after = token_replace(variable_get('email_node_' . $type->type . '_default_after', array(
         'value' => '',
         'format' => NULL
       )), $token_entities);
