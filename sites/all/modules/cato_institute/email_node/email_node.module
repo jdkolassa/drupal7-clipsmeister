@@ -114,13 +114,8 @@ function email_node_form($form, &$form_state, $node) {
       $after = $_SESSION['email_node_original_values']['email_node_after'];
     }
     else {
-      if (isset($form_state['values']['email_node_key'])) {
-        $key = $form_state['values']['email_node_key'];
-      }
-      else {
-        $key = 'draft';
-      }
-      $to = variable_get('email_node_' . $key . '_default_to', '');
+      $key = 'draft';
+      $to = variable_get('email_node_draft_default_to', '');
       $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
         array('node' => $node));
       $before = variable_get('email_node_default_before', array(
@@ -155,7 +150,7 @@ function email_node_form($form, &$form_state, $node) {
       '#title' => t('To'),
       '#description' => t('The content will be emailed to this address.'),
       '#required' => TRUE,
-      '#value' => $to,
+      '#default_value' => $to,
       '#prefix' => '<div id="email-node-to-wrapper">',
       '#suffix' => '</div>',
     );
@@ -202,6 +197,8 @@ function email_node_form($form, &$form_state, $node) {
  * @return mixed
  */
 function email_node_type_ajax_callback($form, &$form_state) {
+  $key = $form_state['input']['email_node_key'];
+  $form['email_node_to']['#value']= variable_get('email_node_' . $key . '_default_to', '');
   return $form['email_node_to'];
 }
 
