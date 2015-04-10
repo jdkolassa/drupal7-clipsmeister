@@ -134,14 +134,14 @@ function email_node_form($form, &$form_state, $node) {
         $token_entities);
       $subject = token_replace(variable_get('email_node_' . $node->type . '_default_subject', '[node:title]'),
         $token_entities);
-      $before = token_replace(variable_get('email_node_' . $node->type . '_default_before', array(
+      $before = variable_get('email_node_' . $node->type . '_default_before', array(
         'value' => '',
         'format' => NULL
-      )), $token_entities);
-      $after = token_replace(variable_get('email_node_' . $node->type . '_default_after', array(
+      ));
+      $after = variable_get('email_node_' . $node->type . '_default_after', array(
         'value' => '',
         'format' => NULL
-      )), $token_entities);
+      ));
     }
     $form['email_node_nid'] = array(
       '#type' => 'hidden',
@@ -235,14 +235,19 @@ function email_node_form_submit($form, &$form_state) {
     try {
       $stored = $_SESSION['email_node_original_values'];
       if ($node = node_load($stored['email_node_nid'])) {
-        $before = check_markup(
+        global $user;
+        $token_entities = array(
+          'user' => $user,
+          'node' => $node,
+        );
+        $before = token_replace(check_markup(
           $stored['email_node_before']['value'],
           $stored['email_node_before']['format']
-        );
-        $after = check_markup(
+        ), $token_entities);
+        $after = token_replace(check_markup(
           $stored['email_node_after']['value'],
           $stored['email_node_after']['format']
-        );
+        ), $token_entities);
         $email_content = array(
           'before' => array(
             '#markup' => $before,
