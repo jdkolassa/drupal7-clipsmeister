@@ -53,7 +53,7 @@ function email_node_config_form($form, &$form_state, $type) {
       '#markup' => '<p>' . t('Enable the <a href="@drupal-token">Token module</a> to view the available token browser.', array('@drupal-token' => 'http://drupal.org/project/token')) . '</p>',
     );
   }
-  $form['email_node_draft_default_to'] = array(
+  $form['email_node_' . $type->type . '_default_draft_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('Draft version recipient email'),
     '#description' => t('Draft emails will be sent to this address.'),
@@ -61,7 +61,7 @@ function email_node_config_form($form, &$form_state, $type) {
     '#placeholder' => 'email@example.com',
     '#default_value' => variable_get('email_node_' . $type->type . '_default_draft_to', ''),
   );
-  $form['email_node_final_default_to'] = array(
+  $form['email_node_' . $type->type . '_default_final_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('Final version recipient email'),
     '#description' => t('Final emails will be sent to this address.'),
@@ -69,21 +69,21 @@ function email_node_config_form($form, &$form_state, $type) {
     '#placeholder' => 'email@example.com',
     '#default_value' => variable_get('email_node_' . $type->type . '_default_final_to', ''),
   );
-  $form['email_node_default_subject'] = array(
+  $form['email_node_' . $type->type . '_default_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
     '#description' => t('This will be the subject of the email'),
     '#required' => TRUE,
     '#default_value' => variable_get('email_node_' . $type->type . '_default_subject', '[node:title]'),
   );
-  $form['email_node_default_before'] = array(
+  $form['email_node_' . $type->type . '_default_before'] = array(
     '#type' => 'text_format',
     '#title' => t('Text to place above content'),
     '#default_value' => $before['value'],
     '#format' => $before['format'],
     '#rows' => 10,
   );
-  $form['email_node_default_after'] = array(
+  $form['email_node_' . $type->type . '_default_after'] = array(
     '#type' => 'text_format',
     '#title' => t('Text to place after content'),
     '#default_value' => $after['value'],
