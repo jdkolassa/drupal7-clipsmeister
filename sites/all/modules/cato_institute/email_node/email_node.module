@@ -286,7 +286,6 @@ function email_node_form_submit($form, &$form_state) {
  * Implements hook_mail().
  */
 function email_node_mail($key, &$message, $params) {
-  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
   switch ($key) {
     case 'draft':
       $message['subject'] = 'DRAFT: ' . $params['subject'];
