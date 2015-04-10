@@ -106,47 +106,31 @@ function email_node_page($node) {
  */
 function email_node_form($form, &$form_state, $node) {
   if(!isset($form_state['storage']['confirm'])) {
-    if (isset($form_state['values']['email_node_key'])) {
-      $key = $form_state['values']['email_node_key'];
+    if (isset($_SESSION['email_node_original_values'])) {
+      $key = $_SESSION['email_node_original_values']['email_node_key'];
+      $to = $_SESSION['email_node_original_values']['email_node_to'];
+      $subject = $_SESSION['email_node_original_values']['email_node_subject'];
+      $before = $_SESSION['email_node_original_values']['email_node_before'];
+      $after = $_SESSION['email_node_original_values']['email_node_after'];
     }
     else {
-      if (!isset($_SESSION['email_node_original_values']['email_node_key'])) {
-        $key = 'draft';
+      if (isset($form_state['values']['email_node_key'])) {
+        $key = $form_state['values']['email_node_key'];
       }
       else {
-        $key = $_SESSION['email_node_original_values']['email_node_key'];
+        $key = 'draft';
       }
-    }
-    if (!isset($_SESSION['email_node_original_values']['email_node_to'])) {
       $to = variable_get('email_node_' . $key . '_default_to', '');
-    }
-    else {
-      $to = $_SESSION['email_node_original_values']['email_node_to'];
-    }
-    if (!isset($_SESSION['email_node_original_values']['email_node_subject'])) {
       $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
         array('node' => $node));
-    }
-    else {
-      $subject = $_SESSION['email_node_original_values']['email_node_subject'];
-    }
-    if (!isset($_SESSION['email_node_original_values']['email_node_before'])) {
       $before = variable_get('email_node_default_before', array(
         'value' => '',
         'format' => NULL
       ));
-    }
-    else {
-      $before = $_SESSION['email_node_original_values']['email_node_before'];
-    }
-    if (!isset($_SESSION['email_node_original_values']['email_node_after'])) {
       $after = variable_get('email_node_default_after', array(
         'value' => '',
         'format' => NULL
       ));
-    }
-    else {
-      $after = $_SESSION['email_node_original_values']['email_node_after'];
     }
     $form['email_node_nid'] = array(
       '#type' => 'hidden',
