@@ -42,8 +42,19 @@ function email_node_config_form() {
   $after = variable_get('email_node_default_after', array('value' => '',
     'format' => NULL));
   $form['email_node_config_description'] = array(
-    '#markup' => '<p>Specify defaults to use for the email node tab.</p>',
+    '#markup' => '<p>Specify defaults to use for the email node tab.</p><p>All fields work with tokens.</p>',
   );
+  if (module_exists('token')) {
+    $form['token_tree'] = array(
+      '#theme' => 'token_tree_link',
+      '#token_types' => array('user', 'node'),
+    );
+  }
+  else {
+    $form['token_tree'] = array(
+      '#markup' => '<p>' . t('Enable the <a href="@drupal-token">Token module</a> to view the available token browser.', array('@drupal-token' => 'http://drupal.org/project/token')) . '</p>',
+    );
+  }
   $form['email_node_draft_default_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('To'),
@@ -115,18 +126,24 @@ function email_node_form($form, &$form_state, $node) {
       unset($_SESSION['email_node_original_values']);
     }
     else {
+      global $user;
+      $token_entities = array(
+        'user' => $user,
+        'node' => $node,
+      );
       $key = 'draft';
-      $to = variable_get('email_node_draft_default_to', '');
+      $to = token_replace(variable_get('email_node_draft_default_to', ''),
+        $token_entities);
       $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
-        array('node' => $node));
-      $before = variable_get('email_node_default_before', array(
+        $token_entities);
+      $before = token_replace(variable_get('email_node_default_before', array(
         'value' => '',
         'format' => NULL
-      ));
-      $after = variable_get('email_node_default_after', array(
+      )), $token_entities);
+      $after = token_replace(variable_get('email_node_default_after', array(
         'value' => '',
         'format' => NULL
-      ));
+      )), $token_entities);
     }
     $form['email_node_nid'] = array(
       '#type' => 'hidden',
