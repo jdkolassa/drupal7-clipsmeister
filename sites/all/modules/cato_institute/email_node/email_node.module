@@ -110,43 +110,43 @@ function email_node_form($form, &$form_state, $node) {
       $key = $form_state['values']['email_node_key'];
     }
     else {
-      if (!isset($_SESSION['original_values']['email_node_key'])) {
+      if (!isset($_SESSION['email_node_original_values']['email_node_key'])) {
         $key = 'draft';
       }
       else {
-        $key = $_SESSION['original_values']['email_node_key'];
+        $key = $_SESSION['email_node_original_values']['email_node_key'];
       }
     }
-    if (!isset($_SESSION['original_values']['email_node_to'])) {
+    if (!isset($_SESSION['email_node_original_values']['email_node_to'])) {
       $to = variable_get('email_node_' . $key . '_default_to', '');
     }
     else {
-      $to = $_SESSION['original_values']['email_node_to'];
+      $to = $_SESSION['email_node_original_values']['email_node_to'];
     }
-    if (!isset($_SESSION['original_values']['email_node_subject'])) {
+    if (!isset($_SESSION['email_node_original_values']['email_node_subject'])) {
       $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
         array('node' => $node));
     }
     else {
-      $subject = $_SESSION['original_values']['email_node_subject'];
+      $subject = $_SESSION['email_node_original_values']['email_node_subject'];
     }
-    if (!isset($_SESSION['original_values']['email_node_before'])) {
+    if (!isset($_SESSION['email_node_original_values']['email_node_before'])) {
       $before = variable_get('email_node_default_before', array(
         'value' => '',
         'format' => NULL
       ));
     }
     else {
-      $before = $_SESSION['original_values']['email_node_before'];
+      $before = $_SESSION['email_node_original_values']['email_node_before'];
     }
-    if (!isset($_SESSION['original_values']['email_node_after'])) {
+    if (!isset($_SESSION['email_node_original_values']['email_node_after'])) {
       $after = variable_get('email_node_default_after', array(
         'value' => '',
         'format' => NULL
       ));
     }
     else {
-      $after = $_SESSION['original_values']['email_node_after'];
+      $after = $_SESSION['email_node_original_values']['email_node_after'];
     }
     $form['email_node_nid'] = array(
       '#type' => 'hidden',
@@ -231,11 +231,11 @@ function email_node_form_submit($form, &$form_state) {
   if(!isset($form_state['storage']['confirm'])) {
     $form_state['storage']['confirm'] = TRUE;
     $form_state['rebuild'] = TRUE;
-    $_SESSION['original_values'] = $form_state['values'];
+    $_SESSION['email_node_original_values'] = $form_state['values'];
   }
   else {
     try {
-      $stored = $_SESSION['original_values'];
+      $stored = $_SESSION['email_node_original_values'];
       if ($node = node_load($stored['email_node_nid'])) {
         $before = check_markup(
           $stored['email_node_before']['value'],
