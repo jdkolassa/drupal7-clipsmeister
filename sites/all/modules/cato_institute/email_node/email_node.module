@@ -105,23 +105,49 @@ function email_node_page($node) {
  * @return mixed
  */
 function email_node_form($form, &$form_state, $node) {
-  if(!isset( $form_state['storage']['confirm'])) {
+  if(!isset($form_state['storage']['confirm'])) {
     if (isset($form_state['values']['email_node_key'])) {
       $key = $form_state['values']['email_node_key'];
     }
     else {
-      $key = 'draft';
+      if (!isset($_SESSION['original_values']['email_node_key'])) {
+        $key = 'draft';
+      }
+      else {
+        $key = $_SESSION['original_values']['email_node_key'];
+      }
     }
-    $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
-      array('node' => $node));
-    $before = variable_get('email_node_default_before', array(
-      'value' => '',
-      'format' => NULL
-    ));
-    $after = variable_get('email_node_default_after', array(
-      'value' => '',
-      'format' => NULL
-    ));
+    if (!isset($_SESSION['original_values']['email_node_to'])) {
+      $to = variable_get('email_node_' . $key . '_default_to', '');
+    }
+    else {
+      $to = $_SESSION['original_values']['email_node_to'];
+    }
+    if (!isset($_SESSION['original_values']['email_node_subject'])) {
+      $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
+        array('node' => $node));
+    }
+    else {
+      $subject = $_SESSION['original_values']['email_node_subject'];
+    }
+    if (!isset($_SESSION['original_values']['email_node_before'])) {
+      $before = variable_get('email_node_default_before', array(
+        'value' => '',
+        'format' => NULL
+      ));
+    }
+    else {
+      $before = $_SESSION['original_values']['email_node_before'];
+    }
+    if (!isset($_SESSION['original_values']['email_node_after'])) {
+      $after = variable_get('email_node_default_after', array(
+        'value' => '',
+        'format' => NULL
+      ));
+    }
+    else {
+      $after = $_SESSION['original_values']['email_node_after'];
+    }
     $form['email_node_nid'] = array(
       '#type' => 'hidden',
       '#value' => $node->nid,
@@ -145,7 +171,7 @@ function email_node_form($form, &$form_state, $node) {
       '#title' => t('To'),
       '#description' => t('The content will be emailed to this address.'),
       '#required' => TRUE,
-      '#value' => variable_get('email_node_' . $key . '_default_to', ''),
+      '#value' => $to,
       '#prefix' => '<div id="email-node-to-wrapper">',
       '#suffix' => '</div>',
     );
@@ -203,13 +229,13 @@ function email_node_type_ajax_callback($form, &$form_state) {
  */
 function email_node_form_submit($form, &$form_state) {
   if(!isset($form_state['storage']['confirm'])) {
-    $form_state['storage']['values'] = $form_state['values'];
     $form_state['storage']['confirm'] = TRUE;
     $form_state['rebuild'] = TRUE;
+    $_SESSION['original_values'] = $form_state['values'];
   }
   else {
     try {
-      $stored = $form_state['storage']['values'];
+      $stored = $_SESSION['original_values'];
       if ($node = node_load($stored['email_node_nid'])) {
         $before = check_markup(
           $stored['email_node_before']['value'],
