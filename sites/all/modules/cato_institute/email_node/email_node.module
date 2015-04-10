@@ -266,7 +266,7 @@ function email_node_form_submit($form, &$form_state) {
           language_default(),
           array(
             'subject' => $stored['email_node_subject'],
-            'body' => $email_content,
+            'body' => render($email_content),
           )
         );
       }
@@ -296,5 +296,5 @@ function email_node_mail($key, &$message, $params) {
       $message['subject'] = $params['subject'];
       break;
   }
-  $message['body'] = $params['body'];
+  $message['body'][] = $params['body'];
 }
