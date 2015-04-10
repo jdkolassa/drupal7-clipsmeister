@@ -252,6 +252,7 @@ function email_node_form_submit($form, &$form_state) {
       else {
         throw new Exception('The content could not be loaded.');
       }
+      unset($_SESSION['email_node_original_values']);
       drupal_set_message(t('The email has been sent.'));
     }
     catch (Exception $e) {
