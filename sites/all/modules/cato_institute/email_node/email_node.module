@@ -48,20 +48,16 @@ function email_node_config_form() {
     '#type' => 'emailfield',
     '#title' => t('To'),
     '#description' => t('Draft emails will be sent to this address.'),
-    '#required' => TRUE,
-    '#attributes' => array(
-      '#placeholder' => 'email@example.com',
-    ),
+    '#required' => FALSE,
+    '#placeholder' => 'email@example.com',
     '#default_value' => variable_get('email_node_draft_default_to', ''),
   );
   $form['email_node_final_default_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('To'),
     '#description' => t('Final emails will be sent to this address.'),
-    '#required' => TRUE,
-    '#attributes' => array(
-      '#placeholder' => 'email@example.com',
-    ),
+    '#required' => FALSE,
+    '#placeholder' => 'email@example.com',
     '#default_value' => variable_get('email_node_final_default_to', ''),
   );
   $form['email_node_default_subject'] = array(
@@ -109,12 +105,13 @@ function email_node_page($node) {
  * @return mixed
  */
 function email_node_form($form, &$form_state, $node) {
-  if (isset($form_state['values']['email_node_key'])) {
+  if (isset($form_state['values']['email_node_key']) && $form_state['values']['email_node_key']) {
     $key = $form_state['values']['email_node_key'];
   }
   else {
     $key = 'draft';
   }
+  dpm($key);
   $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
     array('node' => $node));
   $before = variable_get('email_node_default_before', array('value' => '',
@@ -144,7 +141,7 @@ function email_node_form($form, &$form_state, $node) {
     '#title' => t('To'),
     '#description' => t('The content will be emailed to this address.'),
     '#required' => TRUE,
-    '#default_value' => variable_get('email_node_' . $key . '_default_to', ''),
+    '#value' => variable_get('email_node_' . $key . '_default_to', ''),
     '#prefix' => '<div id="email-node-to-wrapper">',
     '#suffix' => '</div>',
   );
@@ -176,10 +173,11 @@ function email_node_form($form, &$form_state, $node) {
  * Ajax callback for email type selector in tab form
  *
  * @param $form
+ * @param $form_state
  *
  * @return mixed
  */
-function email_node_type_ajax_callback($form) {
+function email_node_type_ajax_callback($form, &$form_state) {
   return $form['email_node_to'];
 }
 
