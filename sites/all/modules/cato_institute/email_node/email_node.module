@@ -105,67 +105,75 @@ function email_node_page($node) {
  * @return mixed
  */
 function email_node_form($form, &$form_state, $node) {
-  if (isset($form_state['values']['email_node_key']) && $form_state['values']['email_node_key']) {
-    $key = $form_state['values']['email_node_key'];
-  }
-  else {
-    $key = 'draft';
-  }
-  $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
-    array('node' => $node));
-  $before = variable_get('email_node_default_before', array('value' => '',
-    'format' => NULL));
-  $after = variable_get('email_node_default_after', array('value' => '',
-    'format' => NULL));
-  $form['email_node_nid'] = array(
-    '#type' => 'hidden',
-    '#value' => $node->nid,
-  );
-  $form['email_node_key'] = array(
-    '#type' => 'radios',
-    '#title' => t('Type of email'),
-    '#description' => t('Draft emails will have "DRAFT: " appended before the subject.'),
-    '#default_value' => $key,
-    '#options' => array(
-      'draft' => t('Draft'),
-      'final' => t('Final')
-    ),
-    '#ajax' => array(
-      'callback' => 'email_node_type_ajax_callback',
-      'wrapper' => 'email-node-to-wrapper',
-    ),
-  );
-  $form['email_node_to'] = array(
-    '#type' => 'emailfield',
-    '#title' => t('To'),
-    '#description' => t('The content will be emailed to this address.'),
-    '#required' => TRUE,
-    '#value' => variable_get('email_node_' . $key . '_default_to', ''),
-    '#prefix' => '<div id="email-node-to-wrapper">',
-    '#suffix' => '</div>',
-  );
-  $form['email_node_subject'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Subject'),
-    '#description' => t('This will be the subject of the email'),
-    '#required' => TRUE,
-    '#default_value' => $subject,
-  );
-  $form['email_node_before'] = array(
-    '#type' => 'text_format',
-    '#title' => t('Text to place above content'),
-    '#default_value' => $before['value'],
-    '#format' => $before['format'],
-    '#rows' => 10,
-  );
-  $form['email_node_after'] = array(
-    '#type' => 'text_format',
-    '#title' => t('Text to place after content'),
-    '#default_value' => $after['value'],
-    '#format' => $after['format'],
-    '#rows' => 10,
-  );
-  if ($key == 'draft') {
+  if(!isset( $form_state['storage']['confirm'])) {
+    if (isset($form_state['values']['email_node_key'])) {
+      $key = $form_state['values']['email_node_key'];
+    }
+    else {
+      $key = 'draft';
+    }
+    $subject = token_replace(variable_get('email_node_default_subject', '[node:title]'),
+      array('node' => $node));
+    $before = variable_get('email_node_default_before', array(
+      'value' => '',
+      'format' => NULL
+    ));
+    $after = variable_get('email_node_default_after', array(
+      'value' => '',
+      'format' => NULL
+    ));
+    $form['email_node_nid'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->nid,
+    );
+    $form['email_node_key'] = array(
+      '#type' => 'radios',
+      '#title' => t('Type of email'),
+      '#description' => t('Draft emails will have "DRAFT: " appended before the subject.'),
+      '#default_value' => $key,
+      '#options' => array(
+        'draft' => t('Draft'),
+        'final' => t('Final')
+      ),
+      '#ajax' => array(
+        'callback' => 'email_node_type_ajax_callback',
+        'wrapper' => 'email-node-to-wrapper',
+      ),
+    );
+    $form['email_node_to'] = array(
+      '#type' => 'emailfield',
+      '#title' => t('To'),
+      '#description' => t('The content will be emailed to this address.'),
+      '#required' => TRUE,
+      '#value' => variable_get('email_node_' . $key . '_default_to', ''),
+      '#prefix' => '<div id="email-node-to-wrapper">',
+      '#suffix' => '</div>',
+    );
+    $form['email_node_subject'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Subject'),
+      '#description' => t('This will be the subject of the email'),
+      '#required' => TRUE,
+      '#default_value' => $subject,
+    );
+    $form['email_node_before'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text to place above content'),
+      '#default_value' => $before['value'],
+      '#format' => $before['format'],
+      '#rows' => 10,
+    );
+    $form['email_node_after'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text to place after content'),
+      '#default_value' => $after['value'],
+      '#format' => $after['format'],
+      '#rows' => 10,
+    );
+    $form['submit']=array(
+      '#type'=>'submit',
+      '#value'=>t('Submit')
+    );
     return $form;
   }
   else {
@@ -192,35 +200,52 @@ function email_node_type_ajax_callback($form, &$form_state) {
  * @param $form
  * @param $form_state
  */
-function email_node_form_submit($form) {
-  try {
-    if ($node = node_load($form['email_node_nid'])) {
-      $before = check_markup($form['email_node_before']['value'],
-        $form['email_node_before']['format']);
-      $after = check_markup($form['email_node_after']['value'],
-        $form['email_node_after']['format']);
-      $email_content = array(
-        'before' => array(
-          '#markup' => $before,
-        ),
-        'content' => node_view($node),
-        'after' => array(
-          '#markup' => $after,
-        ),
-      );
-      drupal_mail('email_node', $form['email_node_key'], $form['email_node_to'],
-        language_default(), array(
-          'subject' => $form['email_node_subject'],
-          'body' => $email_content,
-        ));
-    }
-    else {
-      throw new Exception('The content could not be loaded.');
-    }
-    drupal_set_message(t('The email has been sent.'));
+function email_node_form_submit($form, &$form_state) {
+  if(!isset($form_state['storage']['confirm'])) {
+    $form_state['storage']['values'] = $form_state['values'];
+    $form_state['storage']['confirm'] = TRUE;
+    $form_state['rebuild'] = TRUE;
   }
-  catch (Exception $e) {
-    drupal_set_message(t($e->getMessage()), 'error');
+  else {
+    try {
+      $stored = $form_state['storage']['values'];
+      if ($node = node_load($stored['email_node_nid'])) {
+        $before = check_markup(
+          $stored['email_node_before']['value'],
+          $stored['email_node_before']['format']
+        );
+        $after = check_markup(
+          $stored['email_node_after']['value'],
+          $stored['email_node_after']['format']
+        );
+        $email_content = array(
+          'before' => array(
+            '#markup' => $before,
+          ),
+          'content' => node_view($node),
+          'after' => array(
+            '#markup' => $after,
+          ),
+        );
+        drupal_mail(
+          'email_node',
+          $stored['email_node_key'],
+          $stored['email_node_to'],
+          language_default(),
+          array(
+            'subject' => $stored['email_node_subject'],
+            'body' => $email_content,
+          )
+        );
+      }
+      else {
+        throw new Exception('The content could not be loaded.');
+      }
+      drupal_set_message(t('The email has been sent.'));
+    }
+    catch (Exception $e) {
+      drupal_set_message(t($e->getMessage()), 'error');
+    }
   }
 }
 
