@@ -112,6 +112,7 @@ function email_node_form($form, &$form_state, $node) {
       $subject = $_SESSION['email_node_original_values']['email_node_subject'];
       $before = $_SESSION['email_node_original_values']['email_node_before'];
       $after = $_SESSION['email_node_original_values']['email_node_after'];
+      unset($_SESSION['email_node_original_values']);
     }
     else {
       $key = 'draft';
