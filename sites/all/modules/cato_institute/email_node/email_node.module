@@ -165,7 +165,13 @@ function email_node_form($form, &$form_state, $node) {
     '#format' => $after['format'],
     '#rows' => 10,
   );
-  return $form;
+  if ($key == 'draft') {
+    return $form;
+  }
+  else {
+    $question = 'Do you really want to send the final email?';
+    return confirm_form($form, $question, current_path());
+  }
 }
 
 /**
