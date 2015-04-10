@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * Email Node installation file.
+ */
+
+function email_node_uninstall() {
+  try {
+    $select = db_select('variable', 'v');
+    $select->addField('v', 'name');
+    $select->condition('name', 'email_node%', 'LIKE');
+    $results = $select->execute()->fetchAll();
+    if (count($results) > 0) {
+      foreach ($results as $result) {
+        variable_del($result->name);
+      }
+    }
+  }
+  catch (Exception $e) {
+    drupal_set_message(t('The Email Node variables could not be removed. '
+      . $e->getMessage()), 'error');
+  }
+}
