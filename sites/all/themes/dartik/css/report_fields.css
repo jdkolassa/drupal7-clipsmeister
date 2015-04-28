@@ -1,0 +1,35 @@
+.parens::before {
+	content: '(';
+}
+
+.parens::after {
+	content: ')';
+}
+
+.program {
+	font-style: italic;
+}
+
+.program::before {
+	content: "on ";
+}
+
+.type::before {
+	content: "in an ";
+}
+
+.auths::before {
+	content: "by ";
+}
+
+.headline::before {
+	content: "\"";
+}
+
+.headline::after {
+	content: "\"";
+}
+
+.scholar_broadcast::after {
+	content: " discusses ";
+}

@@ -7,7 +7,9 @@ engine = phptemplate
 
 stylesheets[all][] = css/dartik.css
 stylesheets[all][] = css/colors.css
+stylesheets[all][] = css/report_fields.css
 stylesheets[print][] = css/print.css
+
 
 regions[header] = Header
 regions[help] = Help
