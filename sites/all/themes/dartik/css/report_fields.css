@@ -1,3 +1,8 @@
+/* This entire stylesheet is a bunch of dirty, low, no-good, godawful, and atrocious hacks that should be replaced as soon as possible. 
+
+This stylesheet is an act of blasphemy against the Web Development Gods, and is only here as a temporary stopgap, not a permanent fixture. */
+
+
 .parens::before {
 	content: '(';
 }
@@ -10,8 +15,8 @@
 	font-style: italic;
 }
 
-.program::before {
-	content: "on ";
+.subjects_broadcast::after {
+	content: " on\00a0 ";
 }
 
 .type::before {
@@ -28,6 +33,10 @@
 
 .headline::after {
 	content: "\"";
+}
+
+.scholar_broadcast::before {
+	content: '\00a0';
 }
 
 .scholar_broadcast::after {
