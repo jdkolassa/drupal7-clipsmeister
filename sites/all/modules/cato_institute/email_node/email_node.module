@@ -148,6 +148,10 @@ function email_node_form($form, &$form_state, $node) {
       '#type' => 'hidden',
       '#value' => $node->nid,
     );
+    $form['email_node_type'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->type,
+    );
     $form['email_node_key'] = array(
       '#type' => 'radios',
       '#title' => t('Type of email'),
@@ -217,7 +221,8 @@ function email_node_form($form, &$form_state, $node) {
  */
 function email_node_type_ajax_callback($form, &$form_state) {
   $key = $form_state['input']['email_node_key'];
-  $form['email_node_to']['#value']= variable_get('email_node_' . $type->type . '_default_' . $key . '_to', '');
+  $type = $form_state['input']['email_node_type'];
+  $form['email_node_to']['#value']= variable_get('email_node_' . $type . '_default_' . $key . '_to', '');
   return $form['email_node_to'];
 }
 
