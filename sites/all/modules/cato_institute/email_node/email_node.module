@@ -5,6 +5,32 @@
  * Email the contents of a node
  */
 
+// include_once DRUPAL_ROOT . '/sites/all/libraries/CssToInlineStyles/src/CssToInlineStyles.php';
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * For defining external libraries.
+ */
+
+function email_node_libraries_info() {
+
+  // The CSS Inliner library so that emails can be styled correctly
+  $libraries['CSSToInlineStyles'] = array(
+    'name' => 'CSSToInlineStyles',
+    'vendor url' => 'https://github.com/tijsverkoyen/CssToInlineStyles',
+    'download url' => 'https://github.com/tijsverkoyen/CssToInlineStyles',
+    'version' => '1.5.4',
+    'files' => array(
+      'php' => array('src/CssToInlineStyles.php'),
+    ),
+  );
+
+  return $libraries;
+}
+
+
+
 /**
  * Implements hook_menu().
  */
@@ -255,11 +281,16 @@ function email_node_form_submit($form, &$form_state) {
           $stored['email_node_after']['value'],
           $stored['email_node_after']['format']
         ), $token_entities);
+        $cssinliner = new CssToInlineStyles();
+        $html = file_get_contents($node);
+        $css = file_get_contents($node);
+        $cssinliner->setHTML($html);
+        $cssinliner->setCSS($css);
         $email_content = array(
           'before' => array(
             '#markup' => $before,
           ),
-          'content' => node_view($node),
+          'content' => $cssinliner->convert(),
           'after' => array(
             '#markup' => $after,
           ),
@@ -302,31 +333,4 @@ function email_node_mail($key, &$message, $params) {
       break;
   }
   $message['body'][] = $params['body'];
-}
-
-
-
-<?php
-/**
- * Implements hook_libraries_info().
- *
- * For defining external libraries.
- */
-
-function email_node_libraries_info() {
-
-  // A very simple library. No changing APIs (hence, no versions), no variants.
-  // Expected to be extracted into 'sites/all/libraries/simple'.
-  $libraries['CSSToInlineStyles'] = array(
-    'name' => 'CSSToInlineStyles library',
-    'vendor url' => 'https://github.com/tijsverkoyen/CssToInlineStyles',
-    'download url' => 'https://github.com/tijsverkoyen/CssToInlineStyles',
-    'path' => 'CSSToInlineStyles-master/src',
-    'version' => '1.5.4',
-    'files' => array(
-      'php' => array('CSSToInlineStyles-master/src/CssToInlineStyles.php', 'Exception.php', 'Specificity.php'), //this can be a path to the file location like array('lib/simple.js')
-    ),
-  );
-
-  return $libraries;
 }
