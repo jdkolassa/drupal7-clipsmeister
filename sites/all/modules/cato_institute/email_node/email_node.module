@@ -317,10 +317,16 @@ function email_node_mail($key, &$message, $params) {
  * @throws \TijsVerkoyen\CssToInlineStyles\Exception
  */
 function _email_node_inline_css($html) {
-  $cssToInlineStyles = new CssToInlineStyles();
-  $css_file_path = drupal_get_path('module', 'email_node') . '/email_node.css';
-  $css = file_get_contents($css_file_path);
-  $cssToInlineStyles->setHTML($html);
-  $cssToInlineStyles->setCSS($css);
-  return $cssToInlineStyles->convert();
+  try {
+    $cssToInlineStyles = new CssToInlineStyles();
+    $css_file_path = drupal_get_path('module', 'email_node') . '/email_node.css';
+    $css = file_get_contents($css_file_path);
+    $cssToInlineStyles->setHTML($html);
+    $cssToInlineStyles->setCSS($css);
+    return $cssToInlineStyles->convert();
+  }
+  catch (\TijsVerkoyen\CssToInlineStyles\Exception $e) {
+    drupal_set_message(t('Email Node CSS could not be converted: '
+      . $e->getMessage()), 'error');
+  }
 }
