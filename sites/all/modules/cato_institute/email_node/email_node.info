@@ -4,5 +4,6 @@ description = "Email the contents of a node"
 files[] = email_node.module
 dependencies[] = node
 dependencies[] = elements
+dependencies[] = composer_manager
 package = Mail
 core = 7.x
