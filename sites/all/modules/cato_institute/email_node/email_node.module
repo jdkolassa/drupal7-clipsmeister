@@ -5,6 +5,8 @@
  * Email the contents of a node
  */
 
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
+
 /**
  * Implements hook_menu().
  */
@@ -255,7 +257,7 @@ function email_node_form_submit($form, &$form_state) {
           $stored['email_node_after']['value'],
           $stored['email_node_after']['format']
         ), $token_entities);
-        $email_content = array(
+        $email_render_array = array(
           'before' => array(
             '#markup' => $before,
           ),
@@ -264,6 +266,8 @@ function email_node_form_submit($form, &$form_state) {
             '#markup' => $after,
           ),
         );
+        $email_rendered = render($email_content);
+        $email_content = _email_node_inline_css($email_rendered);
         drupal_mail(
           'email_node',
           $stored['email_node_key'],
@@ -271,7 +275,7 @@ function email_node_form_submit($form, &$form_state) {
           language_default(),
           array(
             'subject' => $stored['email_node_subject'],
-            'body' => render($email_content),
+            'body' => $email_content,
           )
         );
       }
@@ -302,4 +306,21 @@ function email_node_mail($key, &$message, $params) {
       break;
   }
   $message['body'][] = $params['body'];
+}
+
+/**
+ * Ports CSS from email_node.css into a form usable by email clients
+ *
+ * @param $html
+ *
+ * @return string
+ * @throws \TijsVerkoyen\CssToInlineStyles\Exception
+ */
+function _email_node_inline_css($html) {
+  $cssToInlineStyles = new CssToInlineStyles();
+  $css_file_path = drupal_get_path('module', 'email_node') . '/email_node.css';
+  $css = file_get_contents($css_file_path);
+  $cssToInlineStyles->setHTML($html);
+  $cssToInlineStyles->setCSS($css);
+  return $cssToInlineStyles->convert();
 }
