@@ -5,31 +5,7 @@
  * Email the contents of a node
  */
 
-// include_once DRUPAL_ROOT . '/sites/all/libraries/CssToInlineStyles/src/CssToInlineStyles.php';
-
-/**
- * Implements hook_libraries_info().
- *
- * For defining external libraries.
- */
-
-function email_node_libraries_info() {
-
-  // The CSS Inliner library so that emails can be styled correctly
-  $libraries['CSSToInlineStyles'] = array(
-    'name' => 'CSSToInlineStyles',
-    'vendor url' => 'https://github.com/tijsverkoyen/CssToInlineStyles',
-    'download url' => 'https://github.com/tijsverkoyen/CssToInlineStyles',
-    'version' => '1.5.4',
-    'files' => array(
-      'php' => array('src/CssToInlineStyles.php'),
-    ),
-  );
-
-  return $libraries;
-}
-
-
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 /**
  * Implements hook_menu().
@@ -281,20 +257,17 @@ function email_node_form_submit($form, &$form_state) {
           $stored['email_node_after']['value'],
           $stored['email_node_after']['format']
         ), $token_entities);
-        $cssinliner = new CssToInlineStyles();
-        $html = file_get_contents($node);
-        $css = file_get_contents($node);
-        $cssinliner->setHTML($html);
-        $cssinliner->setCSS($css);
-        $email_content = array(
+        $email_render_array = array(
           'before' => array(
             '#markup' => $before,
           ),
-          'content' => $cssinliner->convert(),
+          'content' => node_view($node),
           'after' => array(
             '#markup' => $after,
           ),
         );
+        $email_rendered = render($email_content);
+        $email_content = _email_node_inline_css($email_rendered);
         drupal_mail(
           'email_node',
           $stored['email_node_key'],
@@ -302,7 +275,7 @@ function email_node_form_submit($form, &$form_state) {
           language_default(),
           array(
             'subject' => $stored['email_node_subject'],
-            'body' => render($email_content),
+            'body' => $email_content,
           )
         );
       }
@@ -333,4 +306,27 @@ function email_node_mail($key, &$message, $params) {
       break;
   }
   $message['body'][] = $params['body'];
+}
+
+/**
+ * Ports CSS from email_node.css into a form usable by email clients
+ *
+ * @param $html
+ *
+ * @return string
+ * @throws \TijsVerkoyen\CssToInlineStyles\Exception
+ */
+function _email_node_inline_css($html) {
+  try {
+    $cssToInlineStyles = new CssToInlineStyles();
+    $css_file_path = drupal_get_path('module', 'email_node') . '/email_node.css';
+    $css = file_get_contents($css_file_path);
+    $cssToInlineStyles->setHTML($html);
+    $cssToInlineStyles->setCSS($css);
+    return $cssToInlineStyles->convert();
+  }
+  catch (\TijsVerkoyen\CssToInlineStyles\Exception $e) {
+    drupal_set_message(t('Email Node CSS could not be converted: '
+      . $e->getMessage()), 'error');
+  }
 }
