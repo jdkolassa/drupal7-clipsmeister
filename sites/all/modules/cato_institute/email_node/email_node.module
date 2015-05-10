@@ -266,7 +266,7 @@ function email_node_form_submit($form, &$form_state) {
             '#markup' => $after,
           ),
         );
-        $email_rendered = render($email_content);
+        $email_rendered = render($email_render_array);
         $email_content = _email_node_inline_css($email_rendered);
         drupal_mail(
           'email_node',
