@@ -1,3 +1,10 @@
 .field-collection-view-links, .submitted, .action-links-field-collection-add { display: none;}
 
 .field-collection-view ul.field-collection-view-links { display: none;}
+
+.taxonomy-term-reference-0 {
+	list-style-type: none;
+	font-size: 18px;
+	font-weight: bold;
+	padding-left: 0;
+}
