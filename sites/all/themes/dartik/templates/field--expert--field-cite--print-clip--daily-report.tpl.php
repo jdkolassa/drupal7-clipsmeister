@@ -43,5 +43,5 @@
  * @ingroup themeable
  */
 ?>
-<?php print render($items); ?>
+&nbsp;<?php print render($items); ?>
 

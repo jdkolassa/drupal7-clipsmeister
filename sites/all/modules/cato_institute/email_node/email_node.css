@@ -2,7 +2,12 @@
 
 .field-collection-view ul.field-collection-view-links { display: none;}
 
-.taxonomy-term-reference-0 {
+.field-label {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.field-type-taxonomy-term-reference {
 	list-style-type: none;
 	font-size: 18px;
 	font-weight: bold;
