@@ -1,0 +1,15 @@
+.field-collection-view-links, .submitted, .action-links-field-collection-add { display: none;}
+
+.field-collection-view ul.field-collection-view-links { display: none;}
+
+.field-label {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.field-type-taxonomy-term-reference {
+	list-style-type: none;
+	font-size: 18px;
+	font-weight: bold;
+	padding-left: 0;
+}
