@@ -19,4 +19,8 @@
 /* This is for the actual clip entry */
 .view-mode-daily_report {
 	margin: 10px 0 10px;
+	display: block;
+}
+.view-mode-daily_report::after {
+	content: "\a";
 }
