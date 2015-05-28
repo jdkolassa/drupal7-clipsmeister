@@ -30,12 +30,3 @@ function cliptik_preprocess_field(&$vars) {
     }
   }
 } */
-
-function cliptik_preprocess_node(&$vars) {
-  $node = $vars['node'];
-  $view_mode = $vars['view_mode'];
-  $content_type = $vars['content_type'];
-  if ($view_mode == 'daily_report' && $content_type = 'print_clip') {
-  	print dpm($vars['content']);
-  }
-}

@@ -27,7 +27,7 @@
 
 <?php if (is_null($fields['field_custom_desc']->content)): ?>
   <div class="clip_entry">
-    <?php print $fields['position']->content; ?>. <a href="<?php echo $fields['field_link']->content; ?>" target="_blank"><?php print $fields['field_primary_outlet']->content; ?></a> (<?php print $fields['field_broadcast_format']->content; ?>), <?php print $fields['field_date']->content; ?>: <?php print $fields['field_scholar']->content; ?> discusses <?php print $fields['field_subjects']->content; ?> <?php if (isset($fields['field_broadcast_program'])) { ?> on <em><?php print $fields['field_broadcast_program']->content;?></em> <?php } ?><br><br>
+    <?php print $fields['position']->content; ?>. <?php print $fields['field_primary_outlet']->content; ?></a> (<?php print $fields['field_broadcast_format']->content; ?>), <?php print $fields['field_date']->content; ?>: <?php print $fields['field_scholar']->content; ?> discusses <?php print $fields['field_subjects']->content; ?> <?php if (isset($fields['field_broadcast_program'])) { ?> on <em><?php print $fields['field_broadcast_program']->content;?></em> <?php } ?><br><br>
 </div>
 <?php else: ?>
   <div class="clip_entry">

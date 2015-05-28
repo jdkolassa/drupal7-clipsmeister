@@ -34,7 +34,7 @@
 
 <?php if (is_null($fields['field_custom_desc']->content)): ?>
   <div class="clip_entry">
-  <?php print $fields['position']->content; ?>. <?php print $fields['field_primarysource']->content; ?></a>, <?php print $fields['field_publication_date']->content; ?>: <?php print $fields['field_scholar']->content; ?> <?php print $fields['field_cite']->content; ?> <?php if( $fields['field_type']->content === 'Article' || $fields['field_type']->content === 'Op-Ed' || $fields['field_type']->content === 'Editorial') { ?> in an <?php print $fields['field_type']->content; } else { ?> in a <?php print $fields['field_type']->content; }?> <?php if(isset($fields['field_noncatoauths'])) { ?> by <?php print $fields['field_noncatoauths']->content; ?> <?php } ?> on <?php print $fields['field_subjects']->content; ?>: "<?php print $fields['field_headline']->content; ?>"<br><br>
+  <?php print $fields['position']->content; ?>. <?php print $fields['field_primarysource']->content; ?></a>, <?php print $fields['field_publication_date']->content; ?>: <?php print $fields['field_scholar']->content; ?> <?php print $fields['field_cite']->content; ?> <?php if($fields['field_type']->raw === 'article' || $fields['field_type']->raw === 'op-Ed' || $fields['field_type']->raw === 'editorial') { ?> in an <?php print $fields['field_type']->content; } else { ?> in a <?php print $fields['field_type']->content; }?> <?php if(isset($fields['field_noncatoauths'])) { ?> by <?php print $fields['field_noncatoauths']->content; ?> <?php } ?> on <?php print $fields['field_subjects']->content; ?>: "<?php print $fields['field_headline']->content; ?>"<br><br>
   </div>
 
 <?php else: ?>
