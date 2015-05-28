@@ -8,103 +8,119 @@
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 /**
+ * Implements hook_block_info().
+ */
+function email_page_block_info() {
+  $blocks['email_page'] = array(
+    'info' => t('Email Page'),
+    'status' => FALSE,
+    'visibility' => 0,
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function email_page_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'email_page') {
+    $before = variable_get('email_page_default_before', array(
+      'value' => '',
+      'format' => NULL
+    ));
+    $after = variable_get('email_page_default_after', array(
+      'value' => '',
+      'format' => NULL
+    ));
+    $form['email_page'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Email Page Settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['email_page']['email_page_config_description'] = array(
+      '#markup' => '<p>Specify defaults to use for the email page block.</p><p>All fields work with tokens.</p>',
+    );
+    if (module_exists('token')) {
+      $form['email_page']['token_tree'] = array(
+        '#theme' => 'token_tree_link',
+        '#token_types' => array('user', 'node'),
+      );
+    }
+    else {
+      $form['email_page']['token_tree'] = array(
+        '#markup' => '<p>' . t('Enable the <a href="@drupal-token">Token module</a> to view the available token browser.', array('@drupal-token' => 'http://drupal.org/project/token')) . '</p>',
+      );
+    }
+    $form['email_page']['email_page_default_draft_to'] = array(
+      '#type' => 'emailfield',
+      '#title' => t('Draft version recipient email'),
+      '#description' => t('Draft emails will be sent to this address.'),
+      '#required' => FALSE,
+      '#placeholder' => 'email@example.com',
+      '#default_value' => variable_get('email_page_default_draft_to', ''),
+    );
+    $form['email_page']['email_page_default_final_to'] = array(
+      '#type' => 'emailfield',
+      '#title' => t('Final version recipient email'),
+      '#description' => t('Final emails will be sent to this address.'),
+      '#required' => FALSE,
+      '#placeholder' => 'email@example.com',
+      '#default_value' => variable_get('email_page_default_final_to', ''),
+    );
+    $form['email_page']['email_page_default_subject'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Subject'),
+      '#description' => t('This will be the subject of the email'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('email_page_default_subject', '[node:title]'),
+    );
+    $form['email_page']['email_page_default_before'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text to place above content'),
+      '#default_value' => $before['value'],
+      '#format' => $before['format'],
+      '#rows' => 10,
+    );
+    $form['email_page']['email_page_default_after'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text to place after content'),
+      '#default_value' => $after['value'],
+      '#format' => $after['format'],
+      '#rows' => 10,
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function email_page_block_save($delta = '', $edit = array()) {
+  if ($delta == 'email_page') {
+    variable_set('email_page_default_draft_to', $edit['email_page_default_draft_to']);
+    variable_set('email_page_default_final_to', $edit['email_page_default_final_to']);
+    variable_set('email_page_default_subject', $edit['email_page_default_subject']);
+    variable_set('email_page_default_before', $edit['email_page_default_before']);
+    variable_set('email_page_default_after', $edit['email_page_default_after']);
+  }
+  return;
+}
+
+/**
  * Implements hook_menu().
  */
 function email_page_menu() {
-  $items['node/%node/email'] = array(
-    'title' => 'Email',
-    'page callback' => 'email_page_page',
-    'page arguments' => array(1),
-    'access callback' => 'node_access',
-    'access arguments' => array('update', 1),
-    'weight' => 0,
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-  $items['admin/structure/types/manage/%node_type/email'] = array(
-    'title' => 'Email',
-    'description' => 'Configure defaults for Email Node.',
-    'page arguments' => array('email_page_config_form', 4),
-    'type' => MENU_LOCAL_TASK,
-    'access arguments' => array('administer content types'),
+  $items['email_page'] = array(
+    'page callback' => 'email_page_process',
+    'page arguments' => array(3),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+    'delivery callback' => 'email_page_response',
   );
   return $items;
-}
-
-/**
- * Builds the form to configure defaults
- *
- * @return array
- */
-function email_page_config_form($form, &$form_state, $type) {
-  $before = variable_get('email_page_' . $type->type . '_default_before', array('value' => '',
-    'format' => NULL));
-  $after = variable_get('email_page_' . $type->type . '_default_after', array('value' => '',
-    'format' => NULL));
-  $form['email_page_config_description'] = array(
-    '#markup' => '<p>Specify defaults to use for the email node tab.</p><p>All fields work with tokens.</p>',
-  );
-  if (module_exists('token')) {
-    $form['token_tree'] = array(
-      '#theme' => 'token_tree_link',
-      '#token_types' => array('user', 'node'),
-    );
-  }
-  else {
-    $form['token_tree'] = array(
-      '#markup' => '<p>' . t('Enable the <a href="@drupal-token">Token module</a> to view the available token browser.', array('@drupal-token' => 'http://drupal.org/project/token')) . '</p>',
-    );
-  }
-  $form['email_page_' . $type->type . '_default_draft_to'] = array(
-    '#type' => 'emailfield',
-    '#title' => t('Draft version recipient email'),
-    '#description' => t('Draft emails will be sent to this address.'),
-    '#required' => FALSE,
-    '#placeholder' => 'email@example.com',
-    '#default_value' => variable_get('email_page_' . $type->type . '_default_draft_to', ''),
-  );
-  $form['email_page_' . $type->type . '_default_final_to'] = array(
-    '#type' => 'emailfield',
-    '#title' => t('Final version recipient email'),
-    '#description' => t('Final emails will be sent to this address.'),
-    '#required' => FALSE,
-    '#placeholder' => 'email@example.com',
-    '#default_value' => variable_get('email_page_' . $type->type . '_default_final_to', ''),
-  );
-  $form['email_page_' . $type->type . '_default_subject'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Subject'),
-    '#description' => t('This will be the subject of the email'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('email_page_' . $type->type . '_default_subject', '[node:title]'),
-  );
-  $form['email_page_' . $type->type . '_default_before'] = array(
-    '#type' => 'text_format',
-    '#title' => t('Text to place above content'),
-    '#description' => t('If you want CSS, place it at the start between <style></style> tags.'),
-    '#default_value' => $before['value'],
-    '#format' => $before['format'],
-    '#rows' => 10,
-  );
-  $form['email_page_' . $type->type . '_default_after'] = array(
-    '#type' => 'text_format',
-    '#title' => t('Text to place after content'),
-    '#default_value' => $after['value'],
-    '#format' => $after['format'],
-    '#rows' => 10,
-  );
-  return system_settings_form($form);
-}
-
-/**
- * Callback for email node page
- *
- * @param $node
- *
- * @return array|mixed
- */
-function email_page_page($node) {
-  return drupal_get_form('email_page_form', $node);
 }
 
 /**
@@ -117,7 +133,7 @@ function email_page_page($node) {
  * @return mixed
  */
 function email_page_form($form, &$form_state, $node) {
-  if(!isset($form_state['storage']['confirm'])) {
+  if (!isset($form_state['storage']['confirm'])) {
     if (isset($_SESSION['email_page_original_values'])) {
       $key = $_SESSION['email_page_original_values']['email_page_key'];
       $to = $_SESSION['email_page_original_values']['email_page_to'];
@@ -200,9 +216,9 @@ function email_page_form($form, &$form_state, $node) {
       '#format' => $after['format'],
       '#rows' => 10,
     );
-    $form['submit']=array(
-      '#type'=>'submit',
-      '#value'=>t('Submit')
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit')
     );
     return $form;
   }
@@ -224,7 +240,7 @@ function email_page_form($form, &$form_state, $node) {
 function email_page_type_ajax_callback($form, &$form_state) {
   $key = $form_state['input']['email_page_key'];
   $type = $form_state['input']['email_page_type'];
-  $form['email_page_to']['#value']= variable_get('email_page_' . $type . '_default_' . $key . '_to', '');
+  $form['email_page_to']['#value'] = variable_get('email_page_' . $type . '_default_' . $key . '_to', '');
   return $form['email_page_to'];
 }
 
@@ -235,7 +251,7 @@ function email_page_type_ajax_callback($form, &$form_state) {
  * @param $form_state
  */
 function email_page_form_submit($form, &$form_state) {
-  if(!isset($form_state['storage']['confirm'])) {
+  if (!isset($form_state['storage']['confirm'])) {
     $form_state['storage']['confirm'] = TRUE;
     $form_state['rebuild'] = TRUE;
     $_SESSION['email_page_original_values'] = $form_state['values'];
