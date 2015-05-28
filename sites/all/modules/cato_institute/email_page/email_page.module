@@ -125,6 +125,21 @@ function email_page_block_view($delta = '') {
   if ($delta == 'email_page') {
     $block['content'] = array(
       'email_page_form' => drupal_get_form('email_page_form'),
+      '#attached' => array(
+        'js' => array(
+          array(
+            'data' => array(
+              'email_page_scrape_element' =>
+                variable_get('email_page_scrape_element', '.region-content'),
+            ),
+            'type' => 'setting',
+            'every_page' => FALSE,
+          ),
+          drupal_get_path('module', 'email_page') . '/email_page.js' => array(
+            'every_page' => FALSE,
+          ),
+        ),
+      ),
     );
   }
   return $block;
