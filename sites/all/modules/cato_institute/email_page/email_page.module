@@ -124,6 +124,9 @@ function email_page_block_view($delta = '') {
   $block = array();
   if ($delta == 'email_page') {
     $block['content'] = array(
+      'last_sent' => array(
+        '#markup' => _email_page_last_sent(),
+      ),
       'email_page_form' => drupal_get_form('email_page_form'),
       '#attached' => array(
         'library' => array(
@@ -319,5 +322,21 @@ function _email_page_inline_css($html) {
   catch (\TijsVerkoyen\CssToInlineStyles\Exception $e) {
     drupal_set_message(t('Email Node CSS could not be converted: '
       . $e->getMessage()), 'error');
+  }
+}
+
+/**
+ * Shows when a final email was last sent
+ *
+ * @return string
+ */
+function _email_page_last_sent() {
+  $last_sent = variable_get('email_page_last_sent', '');
+  if ($last_sent) {
+    return '<p id="email-page-last-sent"><strong>Last sent:</strong> ' .
+    $last_sent . '</p>';
+  }
+  else {
+    return '';
   }
 }
