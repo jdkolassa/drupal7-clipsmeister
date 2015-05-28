@@ -135,8 +135,10 @@ function email_page_block_view($delta = '') {
         'js' => array(
           array(
             'data' => array(
-              'email_page_scrape_element' =>
-                variable_get('email_page_scrape_element', '.region-content'),
+              'email_page' => array(
+                'scrapeElement' =>
+                  variable_get('email_page_scrape_element', '.region-content'),
+              ),
             ),
             'type' => 'setting',
             'every_page' => FALSE,
@@ -204,6 +206,11 @@ function email_page_form() {
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit')
+  );
+  $form['email_page_feedback'] = array(
+    '#prefix' => '<div id="email-page-feedback">',
+    '#markup' => '<p>Click "Submit" to send email.</p>',
+    '#suffix' => '</div>',
   );
   return $form;
 }
