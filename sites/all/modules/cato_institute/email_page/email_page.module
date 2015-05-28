@@ -157,7 +157,7 @@ function email_page_block_view($delta = '') {
  * Implements hook_menu().
  */
 function email_page_menu() {
-  $items['email-page'] = array(
+  $items['email-page/process-submission'] = array(
     'page callback' => 'email_page_process',
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
@@ -178,7 +178,7 @@ function email_page_form() {
   );
   $key = 'draft';
   $to = token_replace(variable_get('email_page_default_draft_to', ''), $token_entities);
-  $form['#action'] = url('email-page');
+  $form['#action'] = url('email-page/process-submission');
   $form['email_page_key'] = array(
     '#type' => 'radios',
     '#title' => t('Type of email'),
@@ -235,6 +235,7 @@ function email_page_type_ajax_callback($form, &$form_state) {
  * @return string
  */
 function email_page_process() {
+  dpm('i am here');
   try {
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST)) {
       global $user;
