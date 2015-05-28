@@ -126,6 +126,9 @@ function email_page_block_view($delta = '') {
     $block['content'] = array(
       'email_page_form' => drupal_get_form('email_page_form'),
       '#attached' => array(
+        'library' => array(
+          array('system', 'jquery.form'),
+        ),
         'js' => array(
           array(
             'data' => array(
