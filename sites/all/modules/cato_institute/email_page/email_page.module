@@ -178,7 +178,14 @@ function email_page_form() {
   );
   $key = 'draft';
   $to = token_replace(variable_get('email_page_default_draft_to', ''), $token_entities);
+  $subject = token_replace(
+    variable_get('email_page_default_subject', '[current-page:title]'),
+    $token_entities);
   $form['#action'] = url('email-page/process-submission');
+  $form['email_page_subject'] = array(
+    '#type' => 'hidden',
+    '#value' => $subject,
+  );
   $form['email_page_key'] = array(
     '#type' => 'radios',
     '#title' => t('Type of email'),
@@ -253,9 +260,6 @@ function email_page_process_form_submission() {
           'format' => NULL
         ))
       ), $token_entities);
-      $subject = token_replace(
-        variable_get('email_page_default_subject', '[current-page:title]'),
-        $token_entities);
       $email_render_array = array(
         'before' => array(
           '#markup' => $before,
@@ -275,7 +279,7 @@ function email_page_process_form_submission() {
         $_POST['email_page_to'],
         language_default(),
         array(
-          'subject' => $subject,
+          'subject' => $_POST['email_page_subject'],
           'body' => $email_content,
         )
       );
