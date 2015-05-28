@@ -124,18 +124,7 @@ function email_page_block_view($delta = '') {
   $block = array();
   if ($delta == 'email_page') {
     $block['content'] = array(
-      '#theme' => 'email_page_form',
-      '#default_draft_to' => variable_get('email_page_default_draft_to', ''),
-      '#default_final_to' => variable_get('email_page_default_final_to', ''),
-      '#default_subject' => variable_get('email_page_default_subject', ''),
-      '#default_before' => variable_get('email_page_default_before', array(
-        'value' => '',
-        'format' => NULL
-      )),
-      '#default_after' => variable_get('email_page_default_after', array(
-        'value' => '',
-        'format' => NULL
-      )),
+      'email_page_form' => drupal_get_form('email_page_form'),
     );
   }
   return $block;
@@ -155,38 +144,18 @@ function email_page_menu() {
 }
 
 /**
- * Implements hook_theme().
- */
-function email_page_theme($existing, $type, $theme, $path) {
-  return array(
-    'email_page_form' => array(
-      'variables' => array(
-        'default_draft_to' => NULL,
-        'default_final_to' => NULL,
-        'default_subject' => NULL,
-        'default_before' => NULL,
-        'default_after' => NULL,
-      ),
-    ),
-  );
-}
-
-/**
- * Renders the form to email the current page
+ * Returns the form to email the current page
  *
- * @param $variables
- *
- * @return string
+ * @return array
  */
-function theme_email_page_form($variables) {
+function email_page_form() {
   global $user;
   $token_entities = array(
     'user' => $user,
   );
   $key = 'draft';
-  $to = token_replace($variables['default_draft_to'], $token_entities);
-  $subject = token_replace($variables['default_subject'], $token_entities);
-  $form['#action'] = '/email-page';
+  $to = token_replace(variable_get('email_page_default_draft_to', ''), $token_entities);
+  $form['#action'] = url('email-page');
   $form['email_page_key'] = array(
     '#type' => 'radios',
     '#title' => t('Type of email'),
@@ -211,32 +180,11 @@ function theme_email_page_form($variables) {
     '#prefix' => '<div id="email-page-to-wrapper">',
     '#suffix' => '</div>',
   );
-  $form['email_page_subject'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Subject'),
-    '#description' => t('This will be the subject of the email'),
-    '#required' => TRUE,
-    '#default_value' => $subject,
-  );
-  $form['email_page_before'] = array(
-    '#type' => 'text_format',
-    '#title' => t('Text to place above content'),
-    '#default_value' => $variables['default_before']['value'],
-    '#format' => $variables['default_before']['format'],
-    '#rows' => 10,
-  );
-  $form['email_page_after'] = array(
-    '#type' => 'text_format',
-    '#title' => t('Text to place after content'),
-    '#default_value' => $variables['default_after']['value'],
-    '#format' => $variables['default_after']['format'],
-    '#rows' => 10,
-  );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit')
   );
-  return drupal_get_form($form);
+  return $form;
 }
 
 /**
