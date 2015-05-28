@@ -157,7 +157,7 @@ function email_page_block_view($delta = '') {
  * Implements hook_menu().
  */
 function email_page_menu() {
-  $items['email_page'] = array(
+  $items['email-page'] = array(
     'page callback' => 'email_page_process',
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
@@ -230,66 +230,65 @@ function email_page_type_ajax_callback($form, &$form_state) {
 }
 
 /**
- * Submission handler for tab form
+ * Handles form submission and populates function to send email
  *
- * @param $form
- * @param $form_state
+ * @return string
  */
-function email_page_form_submit($form, &$form_state) {
-  if (!isset($form_state['storage']['confirm'])) {
-    $form_state['storage']['confirm'] = TRUE;
-    $form_state['rebuild'] = TRUE;
-    $_SESSION['email_page_original_values'] = $form_state['values'];
+function email_page_process() {
+  try {
+    global $user;
+    $token_entities = array(
+      'user' => $user,
+    );
+    $before = token_replace(check_markup(
+      variable_get('email_page_default_before', array(
+        'value' => '',
+        'format' => NULL
+      ))
+    ), $token_entities);
+    $after = token_replace(check_markup(
+      variable_get('email_page_default_after', array(
+        'value' => '',
+        'format' => NULL
+      ))
+    ), $token_entities);
+    $email_render_array = array(
+      'before' => array(
+        '#markup' => $before,
+      ),
+      'content' => array(
+        '#markup' => $_POST['email_page_content'],
+      ),
+      'after' => array(
+        '#markup' => $after,
+      ),
+    );
+    $email_rendered = render($email_render_array);
+    $email_content = _email_page_inline_css($email_rendered);
+    drupal_mail(
+      'email_page',
+      $_POST['email_page_key'],
+      $_POST['email_page_to'],
+      language_default(),
+      array(
+        'subject' => $_POST['email_page_subject'],
+        'body' => $email_content,
+      )
+    );
+    return '<p>The email has been sent.</p>';
   }
-  else {
-    try {
-      $stored = $_SESSION['email_page_original_values'];
-      if ($node = node_load($stored['email_page_nid'])) {
-        global $user;
-        $token_entities = array(
-          'user' => $user,
-          'node' => $node,
-        );
-        $before = token_replace(check_markup(
-          $stored['email_page_before']['value'],
-          $stored['email_page_before']['format']
-        ), $token_entities);
-        $after = token_replace(check_markup(
-          $stored['email_page_after']['value'],
-          $stored['email_page_after']['format']
-        ), $token_entities);
-        $email_render_array = array(
-          'before' => array(
-            '#markup' => $before,
-          ),
-          'content' => node_view($node),
-          'after' => array(
-            '#markup' => $after,
-          ),
-        );
-        $email_rendered = render($email_render_array);
-        $email_content = _email_page_inline_css($email_rendered);
-        drupal_mail(
-          'email_page',
-          $stored['email_page_key'],
-          $stored['email_page_to'],
-          language_default(),
-          array(
-            'subject' => $stored['email_page_subject'],
-            'body' => $email_content,
-          )
-        );
-      }
-      else {
-        throw new Exception('The content could not be loaded.');
-      }
-      unset($_SESSION['email_page_original_values']);
-      drupal_set_message(t('The email has been sent.'));
-    }
-    catch (Exception $e) {
-      drupal_set_message(t($e->getMessage()), 'error');
-    }
+  catch (Exception $e) {
+    return '<p>' . $e->getMessage() . '</p>';
   }
+}
+
+/**
+ * Displays the results of processing the Email Page form submission
+ *
+ * @param $page_callback_result
+ */
+function email_page_response($page_callback_result) {
+  print $page_callback_result;
 }
 
 /**
