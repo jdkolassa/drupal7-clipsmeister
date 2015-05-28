@@ -123,7 +123,6 @@ function email_page_block_save($delta = '', $edit = array()) {
 function email_page_menu() {
   $items['email_page'] = array(
     'page callback' => 'email_page_process',
-    'page arguments' => array(3),
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
     'delivery callback' => 'email_page_response',
