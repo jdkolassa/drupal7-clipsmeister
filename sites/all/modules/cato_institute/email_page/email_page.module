@@ -335,7 +335,7 @@ function _email_page_inline_css($html) {
     return $cssToInlineStyles->convert();
   }
   catch (\TijsVerkoyen\CssToInlineStyles\Exception $e) {
-    drupal_set_message(t('Email Node CSS could not be converted: '
+    drupal_set_message(t('Email Page CSS could not be converted: '
       . $e->getMessage()), 'error');
   }
 }
