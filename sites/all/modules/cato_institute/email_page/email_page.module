@@ -54,6 +54,13 @@ function email_page_block_configure($delta = '') {
         '#markup' => '<p>' . t('Enable the <a href="@drupal-token">Token module</a> to view the available token browser.', array('@drupal-token' => 'http://drupal.org/project/token')) . '</p>',
       );
     }
+    $form['email_page']['email_page_scrape_element'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Element to scrape'),
+      '#description' => t('Use a class or ID to specify the HTML element that the Ajax will scrape to get content for the email.'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('email_page_scrape_element', '.region-content'),
+    );
     $form['email_page']['email_page_default_draft_to'] = array(
       '#type' => 'emailfield',
       '#title' => t('Draft version recipient email'),
@@ -100,6 +107,7 @@ function email_page_block_configure($delta = '') {
  */
 function email_page_block_save($delta = '', $edit = array()) {
   if ($delta == 'email_page') {
+    variable_set('email_page_scrape_element', $edit['email_page_scrape_element']);
     variable_set('email_page_default_draft_to', $edit['email_page_default_draft_to']);
     variable_set('email_page_default_final_to', $edit['email_page_default_final_to']);
     variable_set('email_page_default_subject', $edit['email_page_default_subject']);
