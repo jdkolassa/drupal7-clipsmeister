@@ -1,0 +1,332 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Email the specified contents of a page
+ */
+
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
+
+/**
+ * Implements hook_menu().
+ */
+function email_page_menu() {
+  $items['node/%node/email'] = array(
+    'title' => 'Email',
+    'page callback' => 'email_page_page',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['admin/structure/types/manage/%node_type/email'] = array(
+    'title' => 'Email',
+    'description' => 'Configure defaults for Email Node.',
+    'page arguments' => array('email_page_config_form', 4),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer content types'),
+  );
+  return $items;
+}
+
+/**
+ * Builds the form to configure defaults
+ *
+ * @return array
+ */
+function email_page_config_form($form, &$form_state, $type) {
+  $before = variable_get('email_page_' . $type->type . '_default_before', array('value' => '',
+    'format' => NULL));
+  $after = variable_get('email_page_' . $type->type . '_default_after', array('value' => '',
+    'format' => NULL));
+  $form['email_page_config_description'] = array(
+    '#markup' => '<p>Specify defaults to use for the email node tab.</p><p>All fields work with tokens.</p>',
+  );
+  if (module_exists('token')) {
+    $form['token_tree'] = array(
+      '#theme' => 'token_tree_link',
+      '#token_types' => array('user', 'node'),
+    );
+  }
+  else {
+    $form['token_tree'] = array(
+      '#markup' => '<p>' . t('Enable the <a href="@drupal-token">Token module</a> to view the available token browser.', array('@drupal-token' => 'http://drupal.org/project/token')) . '</p>',
+    );
+  }
+  $form['email_page_' . $type->type . '_default_draft_to'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('Draft version recipient email'),
+    '#description' => t('Draft emails will be sent to this address.'),
+    '#required' => FALSE,
+    '#placeholder' => 'email@example.com',
+    '#default_value' => variable_get('email_page_' . $type->type . '_default_draft_to', ''),
+  );
+  $form['email_page_' . $type->type . '_default_final_to'] = array(
+    '#type' => 'emailfield',
+    '#title' => t('Final version recipient email'),
+    '#description' => t('Final emails will be sent to this address.'),
+    '#required' => FALSE,
+    '#placeholder' => 'email@example.com',
+    '#default_value' => variable_get('email_page_' . $type->type . '_default_final_to', ''),
+  );
+  $form['email_page_' . $type->type . '_default_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#description' => t('This will be the subject of the email'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('email_page_' . $type->type . '_default_subject', '[node:title]'),
+  );
+  $form['email_page_' . $type->type . '_default_before'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Text to place above content'),
+    '#description' => t('If you want CSS, place it at the start between <style></style> tags.'),
+    '#default_value' => $before['value'],
+    '#format' => $before['format'],
+    '#rows' => 10,
+  );
+  $form['email_page_' . $type->type . '_default_after'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Text to place after content'),
+    '#default_value' => $after['value'],
+    '#format' => $after['format'],
+    '#rows' => 10,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Callback for email node page
+ *
+ * @param $node
+ *
+ * @return array|mixed
+ */
+function email_page_page($node) {
+  return drupal_get_form('email_page_form', $node);
+}
+
+/**
+ * Builds the form to enter email information
+ *
+ * @param $form
+ * @param $form_state
+ * @param $node
+ *
+ * @return mixed
+ */
+function email_page_form($form, &$form_state, $node) {
+  if(!isset($form_state['storage']['confirm'])) {
+    if (isset($_SESSION['email_page_original_values'])) {
+      $key = $_SESSION['email_page_original_values']['email_page_key'];
+      $to = $_SESSION['email_page_original_values']['email_page_to'];
+      $subject = $_SESSION['email_page_original_values']['email_page_subject'];
+      $before = $_SESSION['email_page_original_values']['email_page_before'];
+      $after = $_SESSION['email_page_original_values']['email_page_after'];
+      unset($_SESSION['email_page_original_values']);
+    }
+    else {
+      global $user;
+      $token_entities = array(
+        'user' => $user,
+        'node' => $node,
+      );
+      $key = 'draft';
+      $to = token_replace(variable_get('email_page_' . $node->type . '_default_draft_to', ''),
+        $token_entities);
+      $subject = token_replace(variable_get('email_page_' . $node->type . '_default_subject', '[node:title]'),
+        $token_entities);
+      $before = variable_get('email_page_' . $node->type . '_default_before', array(
+        'value' => '',
+        'format' => NULL
+      ));
+      $after = variable_get('email_page_' . $node->type . '_default_after', array(
+        'value' => '',
+        'format' => NULL
+      ));
+    }
+    $form['email_page_nid'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->nid,
+    );
+    $form['email_page_type'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->type,
+    );
+    $form['email_page_key'] = array(
+      '#type' => 'radios',
+      '#title' => t('Type of email'),
+      '#description' => t('Draft emails will have "DRAFT: " appended before the subject.'),
+      '#default_value' => $key,
+      '#options' => array(
+        'draft' => t('Draft'),
+        'final' => t('Final')
+      ),
+      '#ajax' => array(
+        'callback' => 'email_page_type_ajax_callback',
+        'wrapper' => 'email-node-to-wrapper',
+      ),
+    );
+    $form['email_page_to'] = array(
+      '#type' => 'emailfield',
+      '#title' => t('To'),
+      '#description' => t('The content will be emailed to this address.'),
+      '#required' => TRUE,
+      '#default_value' => $to,
+      '#placeholder' => 'email@example.com',
+      '#prefix' => '<div id="email-node-to-wrapper">',
+      '#suffix' => '</div>',
+    );
+    $form['email_page_subject'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Subject'),
+      '#description' => t('This will be the subject of the email'),
+      '#required' => TRUE,
+      '#default_value' => $subject,
+    );
+    $form['email_page_before'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text to place above content'),
+      '#description' => t('If you want CSS, place it at the start between <style></style> tags.'),
+      '#default_value' => $before['value'],
+      '#format' => $before['format'],
+      '#rows' => 10,
+    );
+    $form['email_page_after'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text to place after content'),
+      '#default_value' => $after['value'],
+      '#format' => $after['format'],
+      '#rows' => 10,
+    );
+    $form['submit']=array(
+      '#type'=>'submit',
+      '#value'=>t('Submit')
+    );
+    return $form;
+  }
+  else {
+    $question = 'Do you really want to send the final email?';
+    $description = 'If you click "Confirm," the final email will be sent.';
+    return confirm_form($form, $question, current_path(), $description);
+  }
+}
+
+/**
+ * Ajax callback for email type selector in tab form
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
+ */
+function email_page_type_ajax_callback($form, &$form_state) {
+  $key = $form_state['input']['email_page_key'];
+  $type = $form_state['input']['email_page_type'];
+  $form['email_page_to']['#value']= variable_get('email_page_' . $type . '_default_' . $key . '_to', '');
+  return $form['email_page_to'];
+}
+
+/**
+ * Submission handler for tab form
+ *
+ * @param $form
+ * @param $form_state
+ */
+function email_page_form_submit($form, &$form_state) {
+  if(!isset($form_state['storage']['confirm'])) {
+    $form_state['storage']['confirm'] = TRUE;
+    $form_state['rebuild'] = TRUE;
+    $_SESSION['email_page_original_values'] = $form_state['values'];
+  }
+  else {
+    try {
+      $stored = $_SESSION['email_page_original_values'];
+      if ($node = node_load($stored['email_page_nid'])) {
+        global $user;
+        $token_entities = array(
+          'user' => $user,
+          'node' => $node,
+        );
+        $before = token_replace(check_markup(
+          $stored['email_page_before']['value'],
+          $stored['email_page_before']['format']
+        ), $token_entities);
+        $after = token_replace(check_markup(
+          $stored['email_page_after']['value'],
+          $stored['email_page_after']['format']
+        ), $token_entities);
+        $email_render_array = array(
+          'before' => array(
+            '#markup' => $before,
+          ),
+          'content' => node_view($node),
+          'after' => array(
+            '#markup' => $after,
+          ),
+        );
+        $email_rendered = render($email_render_array);
+        $email_content = _email_page_inline_css($email_rendered);
+        drupal_mail(
+          'email_page',
+          $stored['email_page_key'],
+          $stored['email_page_to'],
+          language_default(),
+          array(
+            'subject' => $stored['email_page_subject'],
+            'body' => $email_content,
+          )
+        );
+      }
+      else {
+        throw new Exception('The content could not be loaded.');
+      }
+      unset($_SESSION['email_page_original_values']);
+      drupal_set_message(t('The email has been sent.'));
+    }
+    catch (Exception $e) {
+      drupal_set_message(t($e->getMessage()), 'error');
+    }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function email_page_mail($key, &$message, $params) {
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+  switch ($key) {
+    case 'draft':
+      $message['subject'] = 'DRAFT: ' . $params['subject'];
+      break;
+
+    case 'final':
+      $message['subject'] = $params['subject'];
+      break;
+  }
+  $message['body'][] = $params['body'];
+}
+
+/**
+ * Ports CSS from email_page.css into a form usable by email clients
+ *
+ * @param $html
+ *
+ * @return string
+ * @throws \TijsVerkoyen\CssToInlineStyles\Exception
+ */
+function _email_page_inline_css($html) {
+  try {
+    $cssToInlineStyles = new CssToInlineStyles();
+    $css_file_path = drupal_get_path('module', 'email_page') . '/email_page.css';
+    $css = file_get_contents($css_file_path);
+    $cssToInlineStyles->setHTML($html);
+    $cssToInlineStyles->setCSS($css);
+    return $cssToInlineStyles->convert();
+  }
+  catch (\TijsVerkoyen\CssToInlineStyles\Exception $e) {
+    drupal_set_message(t('Email Node CSS could not be converted: '
+      . $e->getMessage()), 'error');
+  }
+}

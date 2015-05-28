@@ -1,0 +1,26 @@
+.field-collection-view-links, .submitted, .action-links-field-collection-add { display: none;}
+
+.field-collection-view ul.field-collection-view-links { display: none;}
+
+#clips_report_header {
+	font-size: 24px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.field-type-taxonomy-term-reference, .taxonomy-term-reference-0 {
+	list-style-type: none;
+	font-size: 18px;
+	font-weight: bold;
+	padding-left: 0;
+	margin: 20px 0 20px;
+}
+
+/* This is for the actual clip entry */
+.view-mode-daily_report {
+	margin: 10px 0 10px;
+	display: block;
+}
+.view-mode-daily_report::after {
+	content: "\a";
+}
