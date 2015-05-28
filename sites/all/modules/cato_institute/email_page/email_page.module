@@ -188,7 +188,7 @@ function email_page_form() {
 }
 
 /**
- * Ajax callback for email type selector in tab form
+ * Ajax callback for email type selector in block
  *
  * @param $form
  * @param $form_state
