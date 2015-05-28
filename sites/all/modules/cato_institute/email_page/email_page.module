@@ -158,10 +158,10 @@ function email_page_block_view($delta = '') {
  */
 function email_page_menu() {
   $items['email-page/process-submission'] = array(
-    'page callback' => 'email_page_process',
+    'page callback' => 'email_page_process_form_submission',
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
-    'delivery callback' => 'email_page_response',
+    'delivery callback' => 'email_page_show_form_response',
   );
   return $items;
 }
@@ -234,8 +234,7 @@ function email_page_type_ajax_callback($form, &$form_state) {
  *
  * @return string
  */
-function email_page_process() {
-  dpm('i am here');
+function email_page_process_form_submission() {
   try {
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST)) {
       global $user;
@@ -293,7 +292,7 @@ function email_page_process() {
  *
  * @param $page_callback_result
  */
-function email_page_response($page_callback_result) {
+function email_page_show_form_response($page_callback_result) {
   print $page_callback_result;
 }
 
