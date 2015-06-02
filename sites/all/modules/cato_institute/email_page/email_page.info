@@ -1,0 +1,9 @@
+; $Id$
+name = Email Page
+description = "Email the specified contents of a page"
+files[] = email_page.module
+dependencies[] = block
+dependencies[] = elements
+dependencies[] = composer_manager
+package = Mail
+core = 7.x
