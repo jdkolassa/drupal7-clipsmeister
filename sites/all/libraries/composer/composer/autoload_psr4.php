@@ -7,4 +7,5 @@ $baseDir = dirname(dirname(dirname($vendorDir))).'/default/files/composer';
 
 return array(
     'TijsVerkoyen\\CssToInlineStyles\\' => array($vendorDir . '/tijsverkoyen/css-to-inline-styles/src'),
+    'Symfony\\Component\\CssSelector\\' => array($vendorDir . '/symfony/css-selector'),
 );
