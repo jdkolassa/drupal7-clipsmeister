@@ -34,18 +34,23 @@ function cliptik_preprocess_node(&$vars) {
  */
 function _cliptik_broadcast_verb(&$vars) {
   if ($broadcast_type = field_get_items('node', $vars['node'], 'field_broadcast_type')) {
-    switch ($broadcast_type[0]['value']) {
-      case 'Mention':
-        $verb = 'mentioned regarding';
-        break;
-      case 'Event':
-        $verb = 'covered';
-        break;
-      default:
-        $verb = 'discusses';
-        break;
+    if (!field_get_items('node', $vars['node'], 'field_custom_desc')) {
+      switch ($broadcast_type[0]['value']) {
+        case 'Mention':
+          $verb = 'mentioned regarding';
+          break;
+        case 'Event':
+          $verb = 'covered';
+          break;
+        default:
+          $verb = 'discusses';
+          break;
+      }
+      $vars['broadcast_verb'] = '&nbsp;' . $verb;
     }
-    $vars['broadcast_verb'] = '&nbsp;' . $verb;
+    else {
+      $vars['broadcast_verb'] = '';
+    }
   }
 }
 
