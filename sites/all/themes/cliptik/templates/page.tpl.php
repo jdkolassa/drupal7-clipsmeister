@@ -106,8 +106,8 @@
         )); ?>
       </nav> <!-- /#secondary-menu -->
     <?php endif; ?>
-    
-    
+
+
     <?php if ($logo): ?>
       <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo">
         <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
@@ -198,9 +198,7 @@
         </ul>
       <?php endif; ?>
       <?php print render($page['content']); ?>
-      <div class="the-daily-report">
-            <?php print render($page['clips_review']); ?>
-        </div>
+      <?php print render($page['clips_review']); ?>
       <?php print $feed_icons; ?>
 
     </div></div> <!-- /.section, /#content -->
@@ -210,7 +208,7 @@
         <?php print render($page['sidebar_first']); ?>
       </div></div> <!-- /.section, /#sidebar-first -->
     <?php endif; ?>
-    
+
     <?php if ($page['sidebar_second']): ?>
       <div id="sidebar-second" class="column sidebar"><div class="section">
         <?php print render($page['sidebar_second']); ?>
