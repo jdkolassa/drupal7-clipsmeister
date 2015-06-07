@@ -91,7 +91,8 @@ function _cliptik_print_type_article(&$vars) {
     else {
       $gram_art = 'a';
     }
-    $vars['content']['field_type'][0]['#markup'] = $gram_art . ' ' . $vars['content']['field_type'][0]['#markup'];
+    $vars['content']['field_type'][0]['#markup'] = 'in ' . $gram_art . ' ' .
+      $vars['content']['field_type'][0]['#markup'];
   }
 }
 
