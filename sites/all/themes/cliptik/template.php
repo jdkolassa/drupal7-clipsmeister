@@ -23,6 +23,7 @@ function cliptik_preprocess_node(&$vars) {
       }
       else {
         $primary_field_name = 'field_primarysource';
+        _cliptik_print_type_article($vars);
       }
       _cliptik_link_primary($vars, $primary_field_name);
     }
@@ -74,6 +75,20 @@ function _cliptik_broadcast_verb(&$vars) {
       $vars['broadcast_verb'] = '';
     }
   }
+}
+
+/**
+ * Prepends the proper grammatical article to the print type
+ *
+ * @param $vars
+ */
+function _cliptik_print_type_article(&$vars) {
+  if (preg_match('/^[aeiou]|s\z/i', $vars['content']['field_type'][0]['#markup'])) {
+    $gram_art = 'an';
+  } else {
+    $gram_art = 'a';
+  }
+  $vars['content']['field_type'][0]['#markup'] = $gram_art . ' ' . $vars['content']['field_type'][0]['#markup'];
 }
 
 /**
