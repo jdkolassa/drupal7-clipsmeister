@@ -4,9 +4,6 @@
  * Implements hook_preprocess_field().
  */
 function cliptik_preprocess_field(&$vars) {
-  $vars['theme_hook_suggestions'][] = 'field__' . $vars['element']['#view_mode'];
-  $vars['theme_hook_suggestions'][] = 'field__' . $vars['element']['#field_name'] . '__' . $vars['element']['#view_mode'];
-  $vars['theme_hook_suggestions'][] = 'field__' . $vars['element']['#field_name'] . '__' . $vars['element']['#bundle'] . '__' . $vars['element']['#view_mode'];
   if ($vars['element']['#field_name'] == 'field_scholar') {
     if ($vars['element']['#view_mode'] == 'daily_report') {
       _cliptik_scholar_nicename($vars);
