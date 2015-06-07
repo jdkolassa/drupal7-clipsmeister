@@ -57,22 +57,23 @@ function _cliptik_scholar_nicename(&$vars) {
  */
 function _cliptik_broadcast_verb(&$vars) {
   if ($broadcast_type = field_get_items('node', $vars['node'], 'field_broadcast_type')) {
+    $vars['broadcast_verb'] = '';
     if (!field_get_items('node', $vars['node'], 'field_custom_desc')) {
-      switch ($broadcast_type[0]['value']) {
-        case 'Mention':
-          $verb = 'mentioned regarding';
-          break;
-        case 'Event':
-          $verb = 'covered';
-          break;
-        default:
-          $verb = 'discusses';
-          break;
+      if ($scholars = field_get_items('node', $vars['node'], 'field_scholar')) {
+        $count_authors = count($scholars);
+        switch ($broadcast_type[0]['value']) {
+          case 'Mention':
+            $verb = 'mentioned regarding';
+            break;
+          case 'Event':
+            $verb = 'covered';
+            break;
+          default:
+            $verb = ($count_authors == 1) ? 'discusses' : 'discuss';
+            break;
+        }
+        $vars['broadcast_verb'] = '&nbsp;' . $verb;
       }
-      $vars['broadcast_verb'] = '&nbsp;' . $verb;
-    }
-    else {
-      $vars['broadcast_verb'] = '';
     }
   }
 }
