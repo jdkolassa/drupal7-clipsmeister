@@ -83,12 +83,15 @@ function _cliptik_broadcast_verb(&$vars) {
  * @param $vars
  */
 function _cliptik_print_type_article(&$vars) {
-  if (preg_match('/^[aeiou]|s\z/i', $vars['content']['field_type'][0]['#markup'])) {
-    $gram_art = 'an';
-  } else {
-    $gram_art = 'a';
+  if (isset($vars['content']['field_type'])) {
+    if (preg_match('/^[aeiou]|s\z/i', $vars['content']['field_type'][0]['#markup'])) {
+      $gram_art = 'an';
+    }
+    else {
+      $gram_art = 'a';
+    }
+    $vars['content']['field_type'][0]['#markup'] = $gram_art . ' ' . $vars['content']['field_type'][0]['#markup'];
   }
-  $vars['content']['field_type'][0]['#markup'] = $gram_art . ' ' . $vars['content']['field_type'][0]['#markup'];
 }
 
 /**
