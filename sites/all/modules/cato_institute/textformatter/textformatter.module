@@ -1,0 +1,380 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Provides a formatter for CCK text
+ * fields to render multi-value fields.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function textformatter_field_formatter_info() {
+  return array(
+    'textformatter_commas' => array(
+      'label' => t('Text Formatter Commas'),
+      'field types' => array('node_reference', 'taxonomy_term_reference'),
+      'settings' => array(
+        'textformatter_link' => 'Link to entity',
+        'textformatter_skip' => 'Filter out entities that refer to the current page',
+        'textformatter_and' => 'Use and',
+        'textformatter_period' => 'Use period',
+        'textformatter_rdf' => 'Specify type of content for RDF',
+      ),
+    ),
+    'textformatter_list' => array(
+      'label' => t('Text Formatter List'),
+      'field types' => array('node_reference', 'taxonomy_term_reference'),
+      'settings' => array(
+        'textformatter_link' => 'Link to entity',
+        'textformatter_skip' => 'Filter out entities that refer to the current page',
+        'textformatter_list_type' => 'List type',
+        'textformatter_rdf' => 'Specify type of content for RDF',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function textformatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $form = array();
+  if ($display['type'] == 'textformatter_commas' || $display['type'] == 'textformatter_list') {
+    $form['textformatter_link'] = array(
+      '#title' => t('Link to entity'),
+      '#type' => 'select',
+      '#options' => array('No', 'Yes'),
+      '#default_value' => ($settings['textformatter_link'] == 1) ? $settings['textformatter_link'] : 0,
+    );
+    $form['textformatter_skip'] = array(
+      '#title' => t('Filter current page entities'),
+      '#description' => t('Filter out entities that refer to the current page'),
+      '#type' => 'select',
+      '#options' => array('No', 'Yes'),
+      '#default_value' => ($settings['textformatter_skip'] == 1) ? $settings['textformatter_skip'] : 0,
+    );
+    if ($display['type'] == 'textformatter_commas') {
+      $form['textformatter_and'] = array(
+        '#title' => t('Use and'),
+        '#type' => 'select',
+        '#options' => array('No', 'Yes'),
+        '#default_value' => ($settings['textformatter_and'] == 1) ? $settings['textformatter_and'] : 0,
+      );
+      $form['textformatter_period'] = array(
+        '#title' => t('Use period'),
+        '#type' => 'select',
+        '#options' => array('No', 'Yes'),
+        '#default_value' => ($settings['textformatter_period'] == 1) ? $settings['textformatter_period'] : 0,
+      );
+    }
+    elseif ($display['type'] == 'textformatter_list') {
+      $form['textformatter_list_type'] = array(
+        '#title' => t('List type'),
+        '#type' => 'select',
+        '#options' => array('ul' => 'ul', 'ol' => 'ol'),
+        '#default_value' => ($settings['textformatter_list_type'] != 'List type') ? $settings['textformatter_list_type'] : 'ul',
+      );
+    }
+    $form['textformatter_rdf'] = array(
+      '#title' => t('RDF type'),
+      '#description' => t('Specify type of content for RDF'),
+      '#type' => 'select',
+      '#options' => array('Concept', 'Person'),
+      '#default_value' => ($settings['textformatter_rdf'] == 1) ? $settings['textformatter_rdf'] : 0,
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function textformatter_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  if ($display['type'] == 'textformatter_commas' || $display['type'] == 'textformatter_list') {
+    if ($settings['textformatter_link'] == 1) {
+      $text[] = t('Link to entities');
+    }
+    else {
+      $text[] = t('Do not link to entities');
+    }
+    if ($settings['textformatter_skip'] == 1) {
+      $text[] = t('Filter out current page entities');
+    }
+    else {
+      $text[] = t('Do not filter out current page entities');
+    }
+    if ($display['type'] == 'textformatter_commas') {
+      if ($settings['textformatter_and'] == 1) {
+        $text[] = t('Use and');
+      }
+      else {
+        $text[] = t('Do not use and');
+      }
+      if ($settings['textformatter_period'] == 1) {
+        $text[] = t('Use period');
+      }
+      else {
+        $text[] = t('Do not use period');
+      }
+    }
+    elseif ($display['type'] == 'textformatter_list') {
+      $text[] = t('List type: @type', array('@type' => ($settings['textformatter_list_type'] != 'List type') ? $settings['textformatter_list_type'] : 'ul'));
+    }
+    if ($settings['textformatter_rdf'] == 1) {
+      $text[] = t('RDF type: Person');
+    }
+    else {
+      $text[] = t('RDF type: Concept');
+    }
+    return implode('<br />', $text);
+  }
+  else {
+    return '';
+  }
+}
+
+/**
+ * Implements hook_field_formatter_prepare_view().
+ *
+ * This preloads all taxonomy terms for multiple loaded objects at once and
+ * unsets values for invalid terms that do not exist.
+ */
+function textformatter_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  if ($field['type'] == 'taxonomy_term_reference') {
+    taxonomy_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, $items, $displays);
+  }
+  elseif ($field['type'] == 'node_reference') {
+    $nids = array();
+
+    // Collect every possible term attached to any of the fieldable entities.
+    foreach ($entities as $id => $entity) {
+      foreach ($items[$id] as $delta => $item) {
+        // Force the array key to prevent duplicates.
+        if ($item['nid'] != 'autocreate') {
+          $nids[$item['nid']] = $item['nid'];
+        }
+      }
+    }
+    if ($nids) {
+      $nodes = node_load_multiple($nids);
+
+      // Iterate through the fieldable entities again to attach the loaded term data.
+      foreach ($entities as $id => $entity) {
+        $rekey = FALSE;
+
+        foreach ($items[$id] as $delta => $item) {
+          // Check whether the taxonomy term field instance value could be loaded.
+          if (isset($nodes[$item['nid']])) {
+            // Replace the instance value with the term data.
+            $items[$id][$delta]['node'] = $nodes[$item['nid']];
+          }
+          // Terms to be created are not in $terms, but are still legitimate.
+          else if ($item['nid'] == 'autocreate') {
+            // Leave the item in place.
+          }
+          // Otherwise, unset the instance value, since the term does not exist.
+          else {
+            unset($items[$id][$delta]);
+            $rekey = TRUE;
+          }
+        }
+
+        if ($rekey) {
+          // Rekey the items array.
+          $items[$id] = array_values($items[$id]);
+        }
+      }
+    }
+  }
+}
+
+/*
+ * Implements hook_field_formatter_view().
+ */
+function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  if (count($items) > 0) {
+    $settings = $display['settings'];
+    if ($display['type'] == 'textformatter_commas' || $display['type'] == 'textformatter_list') {
+      switch ($entity_type) {
+        case 'node':
+          $entity_bundle = 'type';
+          break;
+
+        case 'taxonomy_term':
+          $entity_bundle = 'vocabulary_machine_name';
+          break;
+      }
+      switch ($field['type']) {
+        case 'taxonomy_term_reference':
+          $field_type = 'taxonomy_term';
+          $name = 'name';
+          $id = 'tid';
+          $menu_pos = 2;
+          break;
+
+        case 'node_reference':
+          $field_type = 'node';
+          $name = 'title';
+          $id = 'nid';
+          $menu_pos = 1;
+          break;
+      }
+      static $skip;
+      if ($settings['textformatter_skip'] == 1) {
+        if ($entity_type == $field_type) {
+          if (!isset($skip[$entity_type])) {
+            $object = menu_get_object($entity_type, $menu_pos);
+            if (isset($object->$id)) {
+              $skip[$entity_type] = $object->$id;
+            }
+          }
+        }
+      }
+      else {
+        $skip[$entity_type] = 0;
+      }
+      $values = _textformatter_get_element_values($items, $entity->$entity_bundle, $field_type, $name, $id, $settings['textformatter_link'], $skip[$entity_type], $settings['textformatter_rdf']);
+      if (count($values) > 0) {
+        if ($display['type'] == 'textformatter_commas') {
+          $element[0] = array(
+            '#theme' => 'textformatter_commas',
+            '#items' => $values,
+            '#period' => $settings['textformatter_period'],
+            '#and' => $settings['textformatter_and'],
+          );
+        }
+        elseif ($display['type'] == 'textformatter_list') {
+          $element = array(
+            '#theme' => 'item_list',
+            '#items' => $values,
+            '#type' => ($settings['textformatter_list_type'] != 'List type') ? $settings['textformatter_list_type'] : 'ul',
+          );
+        }
+      }
+    }
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function textformatter_theme() {
+  return array(
+    'textformatter_commas' => array(
+      'variables' => array('items' => array(), 'period' => 0, 'and' => 0),
+    ),
+  );
+}
+
+/**
+ * Return an array of the values from a node reference or taxonomy term reference field element.
+ */
+function _textformatter_get_element_values($items, $entity_bundle, $field_type, $name, $id, $link, $skip_id, $rdf_type) {
+  $rows = array();
+  foreach ($items as $delta => $item) {
+    $rekey = FALSE;
+    if ($skip_id == $item[$id]) {
+      unset($items[$delta][$id]);
+      $rekey = TRUE;
+    }
+    else {
+      if ($entity = $item[$field_type]) {
+        $title = t('@name', array('@name' => $entity->$name));
+        if ((isset($entity->status) && $entity->status == 0) || (isset($entity->field_auth_category['und'][0]['tid']) && $entity->field_auth_category['und'][0]['tid'] == 4)) {
+          $nolink = 1;
+        }
+        if ($link == 1 && !isset($nolink)) {
+          if ($entity_bundle == 'blog' && isset($entity->vocabulary_machine_name) && ($entity->vocabulary_machine_name == 'topics' || $entity->vocabulary_machine_name = 'tags')) {
+            $uri = array('path' => 'blog/' . $entity->vocabulary_machine_name . '/' . strtolower(str_replace(' ', '-', $entity->$name)));
+            $options = array(
+              'entity_type' => $field_type,
+              'entity' => $entity,
+            );
+          }
+          else {
+            $uri = entity_uri($field_type, $entity);
+            $options = $uri['options'];
+          }
+          if (module_exists('rdf')) {
+            if ($rdf_type == 1) {
+              $options['attributes'] = array(
+                'typeof' => 'foaf:Person',
+                'property' => 'foaf:name',
+                'rel' => 'foaf:publications',
+                'html' => TRUE,
+              );
+            }
+            else {
+              $options['attributes'] = array(
+                'typeof' => 'skos:Concept',
+                'property' => 'rdfs:label skos:prefLabel',
+                'html' => TRUE,
+              );
+            }
+            $options['html'] = TRUE;
+          }
+          $rows[] = l($title, $uri['path'], $options);
+        }
+        else {
+          $rows[] = $title;
+        }
+      }
+    }
+    unset($nolink);
+  }
+  if ($rekey) {
+    $rows = array_values($rows);
+  }
+  return $rows;
+}
+
+/**
+ * Place 'and' where appropriate.
+ */
+function _textformatter_and($array) {
+  if (!$array || !count($array)) {
+    return '';
+  }
+  $last = array_pop($array);
+  if (!count($array)) {
+    return $last;
+  }
+  $count = count($array);
+  if ($count > 2) {
+    $conjunction = ', &';
+  }
+  elseif ($count == 2) {
+    $conjunction = ', and';
+  }
+  else {
+    $conjunction = ' and';
+  }
+  return implode(', ', $array) . t($conjunction . ' ') . $last;
+}
+
+/**
+ * Theme a textfield as a comma-separated list.
+ *
+ * @ingroup themeable
+ */
+function theme_textformatter_commas($variables) {
+  extract($variables);
+  $output = '';
+  if ($and == 1) {
+    $output .= _textformatter_and($items);
+  }
+  else {
+    $output .= implode(', ', $items);
+  }
+  if ($period == 1) {
+    $output .= '.';
+  }
+  return $output;
+}
