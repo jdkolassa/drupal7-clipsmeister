@@ -42,7 +42,13 @@ function _cliptik_scholar_nicename(&$vars) {
   $new_items = array();
   foreach ($vars['items'] as $item) {
     $orig_scholar_text = explode(',', $item['#markup']);
-    $new_items[]['#markup'] = trim($orig_scholar_text[1]).' '.trim ($orig_scholar_text[0]);
+    if (count($orig_scholar_text) > 1) {
+      $new_markup = trim($orig_scholar_text[1]).' '.trim ($orig_scholar_text[0]);
+    }
+    else {
+      $new_markup = $item['#markup'];
+    }
+    $new_items[]['#markup'] = $new_markup;
   }
   $vars['items'] = $new_items;
 }
