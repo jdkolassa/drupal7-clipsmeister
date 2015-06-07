@@ -91,7 +91,13 @@ function _cliptik_print_type_article(&$vars) {
     else {
       $gram_art = 'a';
     }
-    $vars['content']['field_type'][0]['#markup'] = 'in ' . $gram_art . ' ' .
+    $use_in = 'in ';
+    if ($nature_of_mention = field_get_items('node', $vars['node'], 'field_cite')) {
+      if ($nature_of_mention[0]['value'] == 'Authored') {
+        $use_in = '';
+      }
+    }
+    $vars['content']['field_type'][0]['#markup'] = $use_in . $gram_art . ' ' .
       $vars['content']['field_type'][0]['#markup'];
   }
 }
