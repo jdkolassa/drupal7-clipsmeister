@@ -25,7 +25,7 @@ function cliptik_preprocess_node(&$vars) {
         _cliptik_broadcast_verb($vars);
       }
       else {
-        $primary_field_name = 'field_primary_source';
+        $primary_field_name = 'field_primarysource';
       }
       _cliptik_link_primary($vars, $primary_field_name);
     }
@@ -103,8 +103,8 @@ function _cliptik_link_primary(&$vars, $primary_field_name) {
           'absolute' => TRUE,
         ));
       }
-      $vars['content']['field_primary_outlet'][0]['#markup'] =
-        l($vars['content']['field_primary_outlet'][0]['#markup'], $url, array(
+      $vars['content'][$primary_field_name][0]['#markup'] =
+        l($vars['content'][$primary_field_name][0]['#markup'], $url, array(
           'html' => TRUE,
         ));
     }
