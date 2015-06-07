@@ -96,6 +96,13 @@ function _cliptik_link_primary(&$vars, $primary_field_name) {
         ));
       }
       else {
+        if ($primary_field_name == 'field_primarysource') {
+          if ($files = field_get_items('node', $vars['node'], 'field_attached_files')) {
+            $url = file_create_url($files[0]['uri']);
+          }
+        }
+      }
+      if (!isset($url)) {
         $url = url('taxonomy/term/' . $primary_field[0]['tid'], array(
           'absolute' => TRUE,
         ));
