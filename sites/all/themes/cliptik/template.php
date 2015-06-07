@@ -37,17 +37,17 @@ function cliptik_preprocess_node(&$vars) {
  */
 function _cliptik_scholar_nicename(&$vars) {
   $new_items = array();
-  foreach ($vars['items'] as $item) {
-    $orig_scholar_text = explode(',', $item['#markup']);
+  foreach ($vars['items'][0]['#items'] as $item) {
+    $orig_scholar_text = explode(',', $item);
     if (count($orig_scholar_text) > 1) {
       $new_markup = trim($orig_scholar_text[1]).' '.trim ($orig_scholar_text[0]);
     }
     else {
-      $new_markup = $item['#markup'];
+      $new_markup = $item;
     }
-    $new_items[]['#markup'] = $new_markup;
+    $new_items[]= $new_markup;
   }
-  $vars['items'] = $new_items;
+  $vars['items'][0]['#items'] = $new_items;
 }
 
 /**
