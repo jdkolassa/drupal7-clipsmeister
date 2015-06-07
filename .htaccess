@@ -1,7 +1,7 @@
-php_value memory_limit 6G
+php_value memory_limit 5G
 php_value upload_max_filesize 200M
 php_value post_max_size 200M
-php_value max_execution_time 600
+php_value max_execution_time 2000
 php_flag short_open_tag off
 php_value newrelic.appname %{HTTP_HOST}
 
