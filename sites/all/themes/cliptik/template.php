@@ -23,6 +23,7 @@ function cliptik_preprocess_node(&$vars) {
       if ($vars['node']->type == 'broadcast_clip') {
         $primary_field_name = 'field_primary_outlet';
         _cliptik_broadcast_verb($vars);
+        _cliptik_broadcast_program($vars);
       }
       else {
         $primary_field_name = 'field_primary_source';
@@ -70,6 +71,18 @@ function _cliptik_broadcast_verb(&$vars) {
     else {
       $vars['broadcast_verb'] = '';
     }
+  }
+}
+
+/**
+ * Prepends "on" to broadcast program name if present
+ *
+ * @param $vars
+ */
+function _cliptik_broadcast_program(&$vars) {
+  if (isset($vars['content']['field_broadcast_program'])) {
+    $vars['content']['field_broadcast_program'][0]['#markup'] = ' on <em>' .
+      $vars['content']['field_broadcast_program'][0]['#markup'] . '</em>';
   }
 }
 
