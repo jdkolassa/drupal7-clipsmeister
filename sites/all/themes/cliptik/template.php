@@ -25,7 +25,9 @@ function cliptik_preprocess_node(&$vars) {
         $primary_field_name = 'field_primarysource';
         _cliptik_print_type_article($vars);
       }
-      _cliptik_link_primary($vars, $primary_field_name);
+      if ($vars['view_mode'] == 'daily_report') {
+        _cliptik_link_primary($vars, $primary_field_name);
+      }
     }
   }
 }
