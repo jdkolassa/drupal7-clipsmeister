@@ -1,9 +1,9 @@
-php_value memory_limit 5G
+php_value memory_limit 600M
 php_value upload_max_filesize 200M
 php_value post_max_size 200M
-php_value max_execution_time 2000
+php_value max_execution_time 600
 php_flag short_open_tag off
-php_value newrelic.appname %{HTTP_HOST}
+php_value newrelic.appname clips.cato.org
 
 #
 # Apache/PHP/Drupal settings:
