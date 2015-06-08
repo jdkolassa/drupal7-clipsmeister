@@ -5,7 +5,7 @@
  */
 function cliptik_preprocess_field(&$vars) {
   if ($vars['element']['#field_name'] == 'field_scholar') {
-    if ($vars['element']['#view_mode'] == 'daily_report') {
+    if ($vars['element']['#view_mode'] == 'daily_report' || $vars['element']['#view_mode'] == 'search_page') {
       _cliptik_scholar_nicename($vars);
     }
   }
@@ -16,7 +16,7 @@ function cliptik_preprocess_field(&$vars) {
  */
 function cliptik_preprocess_node(&$vars) {
   if ($vars['node']->type == 'broadcast_clip' || $vars['node']->type == 'print_clip') {
-    if ($vars['view_mode'] == 'daily_report') {
+    if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page') {
       if ($vars['node']->type == 'broadcast_clip') {
         $primary_field_name = 'field_primary_outlet';
         _cliptik_broadcast_verb($vars);
