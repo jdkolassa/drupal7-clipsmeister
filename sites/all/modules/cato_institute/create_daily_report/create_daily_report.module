@@ -1,0 +1,22 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Automatically create Daily Report upon final email sending
+ */
+
+/**
+ * Implements hook_email_page_sent().
+ */
+function create_daily_report_email_page_sent($key, $subject, $body) {
+  if ($key == 'final') {
+    $node = new StdClass();
+    $node->title = $subject;
+    $node->body[$node->language][0]['value'] = $body;
+    $node->body[$node->language][0]['format'] = 'no_processing';
+    $node->status = 1;
+    $node->uid = 1;
+    node_submit($node);
+    node_save($node);
+  }
+}
