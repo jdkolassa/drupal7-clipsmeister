@@ -314,9 +314,31 @@ function email_page_mail($key, &$message, $params) {
       $message['subject'] = $params['subject'];
       break;
   }
-  $message['body'][] = $params['body'];
+  $message['body'][] = _email_page_convert_smart_quotes($params['body']);
   module_invoke_all('email_page_sent', $key, $message['subject'],
     $message['body']);
+}
+
+/**
+ * Removes smart quotes from a string; stolen from
+ * http://stackoverflow.com/a/1262060
+ *
+ * @param $string
+ *
+ * @return mixed
+ */
+function _email_page_convert_smart_quotes($string) {
+  $search = array(
+    '&acirc;&#128;&#153;',
+    '&acirc;&#128;&#156;',
+    '&acirc;&#128;&#157;',
+  );
+  $replace = array(
+    '\'',
+    '"',
+    '"',
+  );
+  return str_replace($search, $replace, $string);
 }
 
 /**
