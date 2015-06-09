@@ -11,9 +11,10 @@
 function create_daily_report_email_page_sent($key, $subject, $body) {
   if ($key == 'final') {
     $node = new StdClass();
+    $node->type = 'daily_report';
     $node->title = $subject;
-    $node->body[$node->language][0]['value'] = $body;
-    $node->body[$node->language][0]['format'] = 'no_processing';
+    $node->body['und'][0]['value'] = $body;
+    $node->body['und'][0]['format'] = 'no_processing';
     $node->status = 1;
     $node->uid = 1;
     node_submit($node);
