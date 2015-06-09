@@ -315,6 +315,10 @@ function email_page_mail($key, &$message, $params) {
       break;
   }
   $message['body'][] = $params['body'];
+  foreach (module_implements('email_page_sent') as $module) {
+    $function = $module . '_email_page_sent';
+    $function($message);
+  }
 }
 
 /**
