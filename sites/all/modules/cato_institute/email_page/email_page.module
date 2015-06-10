@@ -314,6 +314,8 @@ function email_page_mail($key, &$message, $params) {
       $message['subject'] = $params['subject'];
       break;
   }
+  $time_sent = format_date(time());
+  variable_set('email_page_last_sent', $time_sent);
   $message['body'][] = _email_page_convert_smart_quotes($params['body']);
   module_invoke_all('email_page_sent', $key, $message['subject'],
     $message['body']);
@@ -372,7 +374,7 @@ function _email_page_inline_css($html) {
 function _email_page_last_sent() {
   $last_sent = variable_get('email_page_last_sent', '');
   if ($last_sent) {
-    return '<p id="email-page-last-sent"><strong>Last sent:</strong> ' .
+    return '<p id="email-page-last-sent"><strong>Final last sent:</strong> ' .
     $last_sent . '</p>';
   }
   else {
