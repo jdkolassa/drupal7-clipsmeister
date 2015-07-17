@@ -118,13 +118,15 @@ ul.contextual-links,
 ul.links,
 ul.primary,
 .item-list .pager,
-div.field-type-taxonomy-term-reference,
 div.messages,
 div.meta,
 p.comment-time,
 table,
 .breadcrumb {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+div.field-type-taxonomy-term-reference {
+  font-family: "Georgia", serif;
 }
 input,
 textarea,
@@ -651,20 +653,20 @@ h1#page-title {
 }
 
 .field-type-taxonomy-term-reference {
-  margin: 0 0 1.2em;
+  /* margin: 0 0 1.2em; */
 }
 .field-type-taxonomy-term-reference .field-label {
-  font-weight: normal;
+  font-weight: bold;
   margin: 0;
   padding-right: 5px; /* LTR */
 }
 .field-type-taxonomy-term-reference .field-label,
 .field-type-taxonomy-term-reference ul.links {
-  font-size: 0.8em;
+  font-size: 1em;
 }
 .view-mode-teaser .field-type-taxonomy-term-reference .field-label,
 .view-mode-teaser .field-type-taxonomy-term-reference ul.links {
-  font-size: 0.821em;
+  font-size: 1em;
 }
 .field-type-taxonomy-term-reference ul.links {
   padding: 0;
@@ -677,7 +679,7 @@ h1#page-title {
   white-space: nowrap;
 }
 .field-type-taxonomy-term-reference ul.links li a {
-  padding: 5px 0 20px;
+  /* padding: 5px 0 20px; */
 }
 .link-wrapper {
   text-align: right;
@@ -693,7 +695,7 @@ ul.links {
 }
 ul.links.inline li a {
   display: inline;
-  padding: 18px 0 5px;
+  /* padding: 18px 0 5px; */
 }
 
 .unpublished {
