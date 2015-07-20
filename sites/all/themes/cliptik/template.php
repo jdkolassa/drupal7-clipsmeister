@@ -142,3 +142,21 @@ function _cliptik_link_primary(&$vars, $primary_field_name) {
     }
   }
 }
+
+/**
+ * Formats social media clips per the type (author/post, retweet, follow, etc.)
+ *
+ * @param $vars
+ */
+
+function _cliptik_social_format(&$vars) {
+	if ($vars['node']->type == 'social_media_clip') {
+		if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page') {
+			if (!field_get_items('node', $vars['node'], 'field_custom_desc')) {
+				if ($field_social_nature[0]['value'] == 'authored') {
+	                 print dpm('In the right place');
+}
+			}
+		}
+	}
+}
