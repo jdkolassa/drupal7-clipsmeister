@@ -15,7 +15,7 @@ function cliptik_preprocess_field(&$vars) {
  * Implements hook_preprocess_node().
  */
 function cliptik_preprocess_node(&$vars) {
-  if ($vars['node']->type == 'broadcast_clip' || $vars['node']->type == 'print_clip') {
+  if ($vars['node']->type == 'broadcast_clip' || $vars['node']->type == 'print_clip' {
     if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page') {
       if ($vars['node']->type == 'broadcast_clip') {
         $primary_field_name = 'field_primary_outlet';
@@ -141,22 +141,4 @@ function _cliptik_link_primary(&$vars, $primary_field_name) {
         ));
     }
   }
-}
-
-/**
- * Formats social media clips per the type (author/post, retweet, follow, etc.)
- *
- * @param $vars
- */
-
-function _cliptik_social_format(&$vars) {
-	if ($vars['node']->type == 'social_media_clip') {
-		if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page') {
-			if (!field_get_items('node', $vars['node'], 'field_custom_desc')) {
-				if ($field_social_nature[0]['value'] == 'authored') {
-	                 print dpm('In the right place');
-}
-			}
-		}
-	}
 }
