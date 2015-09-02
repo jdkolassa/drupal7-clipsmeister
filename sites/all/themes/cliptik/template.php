@@ -5,7 +5,7 @@
  */
 function cliptik_preprocess_field(&$vars) {
   if ($vars['element']['#field_name'] == 'field_scholar') {
-    if ($vars['element']['#view_mode'] == 'daily_report' || $vars['element']['#view_mode'] == 'search_page') {
+    if ($vars['element']['#view_mode'] == 'daily_report' || $vars['element']['#view_mode'] == 'search_page' || $vars['element']['#view_mode'] == 'upcoming_appearances') {
       _cliptik_scholar_nicename($vars);
     }
   }
