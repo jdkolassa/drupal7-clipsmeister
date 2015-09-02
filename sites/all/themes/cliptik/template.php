@@ -15,7 +15,7 @@ function cliptik_preprocess_field(&$vars) {
  * Implements hook_preprocess_node().
  */
 function cliptik_preprocess_node(&$vars) {
-  if ($vars['node']->type == 'broadcast_clip' || $vars['node']->type == 'print_clip' {
+  if ($vars['node']->type == 'broadcast_clip' || $vars['node']->type == 'print_clip') {
     if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page') {
       if ($vars['node']->type == 'broadcast_clip') {
         $primary_field_name = 'field_primary_outlet';
