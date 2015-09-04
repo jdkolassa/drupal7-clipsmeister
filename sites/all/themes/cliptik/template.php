@@ -16,7 +16,7 @@ function cliptik_preprocess_field(&$vars) {
  */
 function cliptik_preprocess_node(&$vars) {
   if ($vars['node']->type == 'broadcast_clip' || $vars['node']->type == 'print_clip') {
-    if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page') {
+    if ($vars['view_mode'] == 'daily_report' || $vars['view_mode'] == 'search_page' || $vars['view_mode'] == 'upcoming_appearances') {
       if ($vars['node']->type == 'broadcast_clip') {
         $primary_field_name = 'field_primary_outlet';
         _cliptik_broadcast_verb($vars);
@@ -130,15 +130,12 @@ function _cliptik_link_primary(&$vars, $primary_field_name) {
           }
         }
       }
-      if (!isset($url)) {
-        $url = url('taxonomy/term/' . $primary_field[0]['tid'], array(
-          'absolute' => TRUE,
-        ));
+      if (isset($url)) {
+        $vars['content'][$primary_field_name][0]['#markup'] =
+          l($vars['content'][$primary_field_name][0]['#markup'], $url, array(
+            'html' => TRUE,
+          ));
       }
-      $vars['content'][$primary_field_name][0]['#markup'] =
-        l($vars['content'][$primary_field_name][0]['#markup'], $url, array(
-          'html' => TRUE,
-        ));
     }
   }
 }
