@@ -130,15 +130,12 @@ function _cliptik_link_primary(&$vars, $primary_field_name) {
           }
         }
       }
-      if (!isset($url)) {
-        $url = url('taxonomy/term/' . $primary_field[0]['tid'], array(
-          'absolute' => TRUE,
-        ));
+      if (isset($url)) {
+        $vars['content'][$primary_field_name][0]['#markup'] =
+          l($vars['content'][$primary_field_name][0]['#markup'], $url, array(
+            'html' => TRUE,
+          ));
       }
-      $vars['content'][$primary_field_name][0]['#markup'] =
-        l($vars['content'][$primary_field_name][0]['#markup'], $url, array(
-          'html' => TRUE,
-        ));
     }
   }
 }
