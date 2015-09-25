@@ -203,7 +203,7 @@ function email_page_form() {
   $form['email_page_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('To'),
-    '#description' => t('The content will be emailed to this address.'),
+    '#description' => t('The content will be emailed to this address. The clips email is "CatoClipsList@cato.org".'),
     '#required' => TRUE,
     '#default_value' => $to,
     '#placeholder' => 'email@example.com',
