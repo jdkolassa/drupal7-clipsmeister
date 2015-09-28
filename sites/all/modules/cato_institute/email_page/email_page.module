@@ -209,6 +209,7 @@ function email_page_form() {
     '#placeholder' => 'email@example.com',
     '#prefix' => '<div id="email-page-to-wrapper">',
     '#suffix' => '</div>',
+    '#attributes' => array('multiple' => array('multiple')),
   );
   $form['submit'] = array(
     '#type' => 'submit',
