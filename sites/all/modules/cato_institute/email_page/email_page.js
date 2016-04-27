@@ -8,6 +8,13 @@
       var processForm = function() {
         emailPageForm.find('#edit-submit').hide();
         emailPageFeedback.html('<p>Email is being sent...</p>');
+        if (window.confirm("Are you sure you want to send?")) {
+        	return true;
+        }
+        else {
+        	emailPageFeedback.html('<p>User cancelled email send.</p>');
+        	return false;
+        }
       };
 
       var formSuccess = function(responseText) {
