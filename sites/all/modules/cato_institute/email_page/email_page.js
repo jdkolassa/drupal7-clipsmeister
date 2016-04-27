@@ -13,6 +13,7 @@
         }
         else {
         	emailPageFeedback.html('<p>User cancelled email send.</p>');
+        	emailPageForm.find('#edit-submit').show();
         	return false;
         }
       };
