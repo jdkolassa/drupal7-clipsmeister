@@ -1,5 +1,5 @@
 name = Cliptik
-description = Child theme of Responsive Bartik for the Cato Clips System
+description = Child theme of Responsive Bartik for Clipsmeister
 version = VERSION
 base theme = responsive_bartik
 core = 7.x

@@ -1,5 +1,7 @@
 # Ignore local developer configuration file
 sites/*/environments/dev.inc
+sites/*/environments/
+# I don't want to include any of the environment files in the new repo
 
 # Ignore config info
 sites/*/config.inc
@@ -44,3 +46,6 @@ Thumbs.db
 *.swp
 
 *.xml
+
+# Adding this file for now as I don't want it in the repo ATM
+.htaccess

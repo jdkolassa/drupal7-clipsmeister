@@ -3,5 +3,5 @@ name = Create Daily Report
 description = "Automatically create Daily Report upon final email sending"
 files[] = create_daily_report.module
 dependencies[] = email_page
-package = Cato Institute
+package = Clipsmeister
 core = 7.x

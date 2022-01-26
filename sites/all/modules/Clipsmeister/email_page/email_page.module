@@ -182,7 +182,7 @@ function email_page_form() {
   $form['email_page_to'] = array(
     '#type' => 'emailfield',
     '#title' => t('To'),
-    '#description' => t('The content will be emailed to this address. The clips email is "CatoClipsList@cato.org".'),
+    '#description' => t('The content will be emailed to this address.'),
     '#required' => TRUE,
     '#default_value' => "",
     '#placeholder' => 'email@example.com',
@@ -191,7 +191,7 @@ function email_page_form() {
   $form['email_page_bcc'] = array(
     '#type' => 'emailfield',
     '#title' => t('Bcc'),
-    '#description' => t('The content will be emailed to this address. This is a BCC (Blind Carbon Copy), so it will not be seen by recipients. The clips email is "CatoClipsList@cato.org".'),
+    '#description' => t('The content will be emailed to this address. This is a BCC (Blind Carbon Copy), so it will not be seen by recipients.'),
     '#required' => FALSE,
     '#default_value' => "",
     '#placeholder' => 'email@example.com',
